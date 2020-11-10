@@ -1,0 +1,324 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<parent>
+		<!-- Your own application should inherit from spring-boot-starter-parent -->
+		<groupId>org.springframework.boot</groupId>
+		<artifactId>spring-boot-starter-parent</artifactId>
+		<version>1.5.9.RELEASE</version>
+	</parent>
+	<artifactId>fms</artifactId>
+	<groupId>edu.njit</groupId>
+	<packaging>war</packaging>
+	<name>FMS</name>
+	<description>Freight Management System</description>
+	<version>20.7.1</version>
+	<url>http://projects.spring.io/spring-boot/</url>
+	<organization>
+		<name>New Jersey Institute of Technology</name>
+		<url>http://www.njit.edu</url>
+	</organization>
+	<properties>
+		<!-- <main.basedir>${basedir}/../..</main.basedir> -->
+		<!-- <m2eclipse.wtp.contextRoot>/</m2eclipse.wtp.contextRoot> -->
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+		<geotools.version>22-SNAPSHOT</geotools.version>
+		<itext.version>RELEASE</itext.version>
+	</properties>
+	<dependencies>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-devtools</artifactId>
+			<optional>true</optional>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-web</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-tomcat</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-data-jpa</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.tomcat.embed</groupId>
+			<artifactId>tomcat-embed-jasper</artifactId>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-jdbc</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-security</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.security</groupId>
+			<artifactId>spring-security-taglibs</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>javax.servlet</groupId>
+			<artifactId>jstl</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-test</artifactId>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+		    <groupId>com.microsoft</groupId>
+		    <artifactId>sqlserver</artifactId>
+		    <version>4.2</version>
+		</dependency>
+		<dependency>
+		    <groupId>commons-logging</groupId>
+		    <artifactId>commons-logging</artifactId>
+		    <version>1.2</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>commons-configuration</groupId>
+		    <artifactId>commons-configuration</artifactId>
+		    <version>1.10</version>
+		</dependency>
+		<!-- <dependency>
+		    <groupId>org.apache.commons</groupId>
+		    <artifactId>commons-collections4</artifactId>
+		    <version>4.1</version>
+		</dependency> -->
+		<!-- https://mvnrepository.com/artifact/commons-collections/commons-collections -->
+		<dependency>
+		    <groupId>commons-collections</groupId>
+		    <artifactId>commons-collections</artifactId>
+		    <version>3.2.2</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-lang</groupId>
+			<artifactId>commons-lang</artifactId>
+			<version>2.6</version>
+		</dependency>
+		<dependency>
+ 		   	<groupId>com.ibm.icu</groupId>
+ 		  	<artifactId>icu4j</artifactId>
+ 		  	<version>3.8</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi</artifactId>
+		    <version>4.1.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.apache.poi</groupId>
+		    <artifactId>poi-ooxml</artifactId>
+		    <version>4.1.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>runtime</artifactId>
+		    <version>12.2.217.2158</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>jrcerom</artifactId>
+		    <version>12.2.217.2158</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>common</artifactId>
+		    <version>12.2.217.2158</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>XMLConnector</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.businessobjects</groupId>
+		    <artifactId>foundation</artifactId>
+		    <version>12.2.217.2158</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.businessobjects</groupId>
+		    <artifactId>pfjgraphics</artifactId>
+		    <version>12.2.217.r2158_v20131126</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.businessobjects</groupId>
+		    <artifactId>cvom</artifactId>
+		    <version>12.2.217.r2158_v20131126</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.businessobjects</groupId>
+		    <artifactId>JDBInterface</artifactId>
+		    <version>12.2.217.2158</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.businessobjects</groupId>
+		    <artifactId>DatabaseConnectors</artifactId>
+		    <version>12.2.217.2158</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/xmlpull/xmlpull -->
+		<dependency>
+		    <groupId>xmlpull</groupId>
+		    <artifactId>xmlpull</artifactId>
+		    <version>1.1.3.1</version>
+		</dependency>
+
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>keyCodeDecoder</artifactId>
+		    <version>12.2.217.2158</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>logging</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>webreporting</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>QueryBuilder</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.crystaldecisions</groupId>
+		    <artifactId>xpp3</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.microsoft</groupId>
+		    <artifactId>jdbc</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.microsoft</groupId>
+		    <artifactId>base</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.microsoft</groupId>
+		    <artifactId>util</artifactId>
+		    <version>LOCAL</version>
+		</dependency>
+		<dependency>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>21.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.github.virtuald/curvesapi -->
+		<dependency>
+		    <groupId>com.github.virtuald</groupId>
+		    <artifactId>curvesapi</artifactId>
+		    <version>1.04</version>
+		</dependency>
+		<dependency>
+		    <groupId>com.azalea.ufl</groupId>
+		    <artifactId>BarCodeLibrary</artifactId>
+		    <version>1.0</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/commons-lang/commons-lang -->
+		
+		<dependency>
+			<groupId>com.sun</groupId>
+			<artifactId>imageio</artifactId>
+			<version>LOCAL</version>
+		</dependency>
+		<!-- https://mvnrepository.com/artifact/org.apache.commons/commons-text -->
+<!-- <dependency>
+    <groupId>org.apache.commons</groupId>
+    <artifactId>commons-text</artifactId>
+    <version>1.6</version>
+</dependency> -->
+<dependency>
+		<groupId>org.projectlombok</groupId>
+		<artifactId>lombok</artifactId>
+		<version>1.16.22</version>
+		<scope>provided</scope>
+	</dependency>
+	<!-- <dependency>
+		<groupId>org.geotools</groupId>
+		<artifactId>gt-shapefile</artifactId>
+		<version>${geotools.version}</version>
+	</dependency>
+	<dependency>
+		<groupId>org.geotools</groupId>
+		<artifactId>gt-swing</artifactId>
+		<version>${geotools.version}</version>
+	</dependency>
+	
+<dependency>
+    <groupId>org.geotools</groupId>
+    <artifactId>gt-epsg-wkt</artifactId>
+		<version>${geotools.version}</version>
+</dependency> -->
+<!-- https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient -->
+<dependency>
+    <groupId>org.apache.httpcomponents</groupId>
+    <artifactId>httpclient</artifactId>
+    <version>4.5.9</version>
+</dependency>
+<dependency>
+	<groupId>com.itextpdf</groupId>
+	<artifactId>itext7-core</artifactId>
+	<version>${itext.version}</version>
+	<type>pom</type>
+</dependency>
+
+	</dependencies>
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.springframework.boot</groupId>
+				<artifactId>spring-boot-maven-plugin</artifactId>
+				
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<configuration>
+					<useSystemClassLoader>false</useSystemClassLoader>
+				</configuration>
+			</plugin>
+			<plugin>
+        		<groupId>org.apache.maven.plugins</groupId>
+        		<artifactId>maven-compiler-plugin</artifactId>
+        		<version>3.8.1</version>
+        		<configuration>
+        			<source>1.8</source>
+        			<target>1.8</target>
+        		</configuration>
+      		</plugin>
+		</plugins>
+	</build>
+	<repositories>
+        <repository>
+            <id>maven2-repository.dev.java.net</id>
+            <name>Java.net repository</name>
+            <url>http://download.java.net/maven/2</url>
+        </repository>
+        <repository>
+            <id>osgeo</id>
+            <name>Open Source Geospatial Foundation Repository</name>
+            <url>http://download.osgeo.org/webdav/geotools/</url>
+        </repository>
+        <repository>
+          <snapshots>
+            <enabled>true</enabled>
+          </snapshots>
+          <id>boundless</id>
+          <name>Boundless Maven Repository</name>
+          <url>http://repo.boundlessgeo.com/main</url>
+		</repository>
+		</repositories>
+</project>

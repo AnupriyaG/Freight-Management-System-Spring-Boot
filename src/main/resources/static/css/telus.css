@@ -1,0 +1,113 @@
+body{
+	background: #000066;
+	font: normal normal normal 12px medium/normal Verdana, Geneva, Arial, Helvetica, sans-serif;
+	color: White;
+}
+.c {
+	color: White;
+	font: normal normal normal 10px medium/normal Verdana, Geneva, Arial, Helvetica, sans-serif;
+}
+.forms {
+	border : thin none Black;
+	border-bottom : thin none Black;
+	border-collapse : collapse;
+	border-color : Black Black Black Black;
+	border-left : thin none Black;
+	border-right : thin none Black;
+	border-style : none none none none;
+	border-top : thin none Black;
+	border-width : thin thin thin thin;
+	bottom : auto;
+	padding : 0px 0px 0px 0px;
+}
+.text {
+	font: normal normal normal 11px medium/normal Verdana, Geneva, Arial, Helvetica, sans-serif;
+	color: White;
+}
+A {
+	color: white;
+	text-decoration : underline;
+}
+A:HOVER {
+	color: #FF8C00;
+	text-decoration : underline;
+}
+.headline {
+	font: normal normal normal 16px medium/normal Verdana, Geneva, Arial, Helvetica, sans-serif;
+	color: White;
+}
+.framework {
+	font: normal normal normal 20px medium/normal Verdana, Geneva, Arial, Helvetica, sans-serif;
+	color: White;
+}
+.submit {
+	border : thin none Black;
+	border-bottom : thin none Black;
+	border-collapse : collapse;
+	border-color : Black Black Black Black;
+	border-left : thin none Black;
+	border-right : thin none Black;
+	border-style : none none none none;
+	border-top : thin none Black;
+	border-width : thin thin thin thin;
+	bottom : auto;
+	padding : 0px 0px 0px 0px;
+	text-decoration : underline;
+}
+TD.logHeader {
+	font: bold normal normal 14px medium/normal Verdana, Geneva, Arial, Helvetica, sans-serif;
+	color: White;
+	background-color : #4682B4;
+}
+.level_four {  
+	background-color: #9900FF;
+}
+.page {
+	background-color: #003333;
+}
+.subPages {
+	background-color: Maroon;
+}
+.objects {
+	background-color: #006699;
+}
+.grey {
+	background-color: #666699;
+	border-left : thin solid Lime;
+	border-right : thin solid Lime;
+	}
+.name {
+	background-color: #666699;
+	border-left : thin solid Lime;
+	border-right : thin solid Lime;
+	border-top : thin solid Lime;
+}
+.default {
+	background-color: #000066;
+	border : thin solid;
+}
+.actions {
+	background-color: #666699;
+	border-left : thin solid Lime;
+	border-right : thin solid Lime;
+	border-bottom : thin solid Lime;
+}
+.black {
+	background : Black;
+}
+.dark {
+	color : Blue;
+}
+.locale {
+	background-color: #666699;
+	border : thin solid Lime;
+}
+.separator {
+	background : Black;
+	border-top : thin dotted Silver;
+	border-left : thin dotted Silver;
+	border-right : thin dotted Silver;
+}
+.afterSeparator {
+	background-color: #666699;
+}

@@ -1,0 +1,13 @@
+.classpath
+.project
+.settings/
+target/
+excluded_assets/
+logs/
+.factorypath
+src/main/resources/static/arcgis/searchtest.html
+src/main/resources/static/crystalreportviewers120/
+Misc Files/
+Thumbs.db
+Old Code/
+src/main/webapp/WEB-INF/jsp/reports/GISCombinedReport - Copy.rpt

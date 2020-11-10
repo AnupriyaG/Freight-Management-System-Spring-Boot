@@ -1,0 +1,648 @@
+html {
+   height:100%;
+   margin:0;padding:0;}
+
+body {
+   /*background: #6bb130 url('/telus/images/bg_home_greenfade.png') repeat-x top;
+   *background: url('/telus/images/bg1.png');
+   *background: url('/telus/images/bg2.png');
+   *background: url('/telus/images/bg3.png');
+   *background: url('/telus/images/bg4.png');
+   background: url('/telus/images/bg5.png');
+    *background: url('/telus/images/bg6.png');
+	...
+	background: url('/telus/images/bg15.png');
+	*/
+   background: #afafaf url('/telus/images/bg13.png');
+   background-repeat: repeat;
+
+
+   text-align:center;
+   font-size:11px;
+   line-height:14px;
+   font-family:Trebuchet MS,arial,verdana;
+   margin:0;
+   padding:0;
+   height:100%}
+
+a img {
+	border: 0px none;
+}
+
+#pageBar {
+	/*
+	background: url('/telus/images/bgTop1.png') repeat-x top;
+	background: url('/telus/images/bgTop2.png') repeat-x top;
+	background: url('/telus/images/bgTop3.png') repeat-x top;
+	background: url('/telus/images/bgTop4.png') repeat-x top;
+	background: url('/telus/images/bgTop5.png') repeat-x top;
+	background: url('/telus/images/bgTop6.png') repeat-x top;
+	background: url('/telus/images/bgTop7.png') repeat-x top;
+	background: url('/telus/images/bgTop8.png') repeat-x top;
+	background: url('/telus/images/bgTop9.png') repeat-x top;
+	background: url('/telus/images/bgTop10.png') repeat-x top;
+	background: url('/telus/images/bgTop12.png');
+	
+	background: url('/telus/images/bgTop11.png') repeat-x top;
+	*/
+	background: url('/telus/images/bgTop3Urban.png') repeat-x top;
+	top: 0px;
+	width: 100%;
+	height: 125px;
+	position:fixed;
+ 	z-index:999;
+}
+
+#pageTop {
+	width:1024px;
+	*height: 102px;
+	height: 100px;
+	}
+
+#pageTitle {
+	width:323px;
+	float:left;}
+	
+#pageNev {
+	text-align:right;
+	vertical-align:top;}
+
+p {
+   margin-top:1em;
+   margin-bottom:1em;}
+ 
+h1 {
+   font-size:28px;
+   margin:14px 10px 16px 10px;} 
+   
+.clear {
+   clear:both;
+   height:0px;
+   overflow:hidden;}
+
+#containerMain {
+   position:relative;
+   margin-top: 130px;
+   text-align:center;
+   width:auto;height:auto;
+   z-index:2;}
+
+#contentMain {
+   position:relative;
+   margin:0 auto;
+   text-align:left;
+   width:1024px;
+   z-index:10;}
+
+#loginPage {
+	background:url('/telus/images/loginBG.png') no-repeat top left;
+	width:720px;
+	height:580px;
+	margin-top:40px;
+	padding-top:25px;
+	float:left;
+	 }
+   
+div.loginForm {
+	background:url('/telus/images/loginFormBG.png') no-repeat top left;
+	width:287px;
+	height:195px;
+	padding-top:25px;
+	margin-left:35px;
+	margin-top:50px;
+	}
+	 
+div.loginForm label {
+width:100%;
+display: block;
+padding:5px 0 2px 0;
+
+}
+
+div.loginForm label span {
+display: block;
+color:#333333;
+font-size:12px;
+float:left;
+width:100px;
+text-align:right;
+padding:5px 5px 0 0;
+
+}
+
+div.visitorForm {
+	background:url('/telus/images/visitorBG.png') no-repeat top left;
+	width:287px;
+	height:240px;
+	float:left;
+	padding-top:25px;
+	margin-left:35px;
+	margin-top:50px;
+	}
+	 
+div.visitorForm label {
+width:100%;
+display: block;
+padding:5px 0 2px 0;
+
+}
+
+div.visitorForm label span {
+display: block;
+color:#333333;
+font-size:12px;
+float:left;
+width:100px;
+text-align:right;
+padding:5px 5px 0 0;
+
+}
+
+#loginBottomText {
+	margin-left:200px;
+	display: block;
+	width:400px;
+	color: #222222;
+}
+
+#loginRightText {
+	margin-left:30px;
+	padding-top:125px;
+	display: block;
+	width:250px;
+	color: #222222;
+	font-size: 13px;
+	line-height:20px;
+	float:left;
+}   
+   
+/* for rounded top and bottom */
+#containerMid {
+   position:relative;
+   float:left;
+   line-height:17px;
+   margin-top: 30px;
+   margin-bottom: 50px;
+   }
+   
+.roundedTop{
+   padding-top:4px; /* think why? */
+   background:url('/telus/images/roundedTop568.png') no-repeat top left; }
+
+.roundedBottom {
+   height:6px;
+   background:url('/telus/images/roundedBottom568.png') no-repeat top left;}
+
+#insideMid{
+   position:center;
+   padding:6px 10px 6px 10px;
+   width:548px;
+   background-color: white;}
+  
+.intro {
+   color:#000;
+   font-size:13px;
+   margin:0px 20px 20px 10px;}
+   
+.loginForm {
+	width:492px;
+	height:286px;
+   	background: url('/telus/images/loginBG.png') no-repeat 0 0;
+   	margin-top:150px;}
+   
+.hdrFrame548 {
+   width:548px;
+   background: url('/telus/images/hdrFrame548.png') no-repeat 0 0;  
+   } 
+
+.bgFrame548 { 
+   width:548px; 
+   background: url('/telus/images/bgFrame548.png') no-repeat left bottom; }
+
+h3.title {
+   background: url('/telus/images/hdrFrame548.png') no-repeat 0 0;}
+
+.frameContent {
+   padding:9px 9px 9px 9px;
+   }  
+
+.buttonsBar548 {
+   background: url('/telus/images/bgButtons548.png') no-repeat 0 0;
+   position:relative;
+   width:548px;
+   height:36px;
+   text-align:center;}
+   
+.bgFrame548 .buttonsBar548 div.centered {
+   position:absolute; 
+   margin:8px auto;
+   top:0;right:0; 
+   width:548px;
+   text-align:center; }
+   
+
+fieldset {
+   border:none;
+   margin:0 0px 6px 0px;
+   padding:0;}	
+	
+fieldset.loginDetails {
+   padding: 15px 0px 0px 30px;}
+   
+.logCol {
+   width:165px;
+   float: left;}
+   
+fieldset div.col input{
+   width:113px;}	
+   
+.visitorCol {
+   width:200px;
+   float: left;
+   padding-right:60px;
+   padding-bottom:20px;
+   }
+   
+.inputHeader {
+   background: url('/telus/images/bgInput.png') no-repeat top left;
+   width: 668px;
+   height: 55px;	// 78px;
+   padding-top: 5px;
+   z-index: 1;}
+   
+.inputHeader1000 {
+   background: url('/telus/images/bgInput1000.png') no-repeat top left;
+   width: 1000px;
+   height: 67px;
+   padding-top: 5px;
+   z-index: 1;}
+   
+.inputHeader1024 {
+   background: url('/telus/images/bgInput1024.png') no-repeat top left;
+   width: 1024px;
+   height: 67px;
+   padding-top: 5px;
+   z-index: 1;}   
+
+.inputHeader h1 {
+   color:#FFF;}
+   
+.inputHeader1000 h1 {
+   color:#FFF;}
+
+#inputMid {
+   background:url('/telus/images/bg_black_bottom.png') no-repeat bottom left;
+   padding-left:0px;
+   padding-right:0px;
+   padding-top:0px;
+   width:668px}
+   
+#inputMid1000 {
+   background:url('/telus/images/bg_black_bottom1000.png') no-repeat bottom left;
+   padding-left:0px;
+   padding-right:0px;
+   padding-top:0px;
+   width:1000px
+}
+
+#inputMid1024 {
+   background:url('/telus/images/bg_black_bottom1024.png') no-repeat bottom left;
+   padding-left:0px;
+   padding-right:0px;
+   padding-top:0px;
+   width:1024px
+}
+
+.formContainer {
+	text-align:center;
+   width:668px;
+   /*width:1000px;*/
+   margin:0;
+   /*padding-left: 9px;*/
+   padding-bottom:20px;
+   background-color:#fff;}
+   
+ .formContainer1000 {
+   width:1000px;
+   margin:0;
+   /*padding-left: 9px;*/
+   background-color:#fff;}
+   
+    .formContainer1024 {
+   width:1024px;
+   margin:0;
+   /*padding-left: 9px;*/
+   background-color:#fff;}
+   
+ .blackdBottom {
+   height:6px;
+   background:url('/telus/images/roundedBottom668.png') no-repeat top left;}
+
+.centered {
+   text-align:center;
+   margin-top:8px;
+   padding-bottom:8px;}
+   
+.LeftPicture { padding-left:35px; }
+.textArea { 
+   width:178px; 
+   vertical-align:top; 
+   padding:0px 15px 5px 5px; 
+   height:100px;
+   font-size:11px;}
+   
+.textArea P { margin:0px 0px 0px 0px; }
+.spacer {padding:5px 12px 5px 20px; }
+
+.table {
+  background-color:transparent;
+  }
+  
+.tableHdr {
+	padding-left:8px;
+	background:url('/telus/images/bg_tableHdr.png') repeat-x 0 50%;
+	border-bottom: 1px solid #aaa;
+	line-height:20px;
+	font-weight:bold;
+	font-size:14px;
+	text-align:center;
+    font-family:Trebuchet MS,arial,verdana;}
+	
+.tableHdrB {
+	padding-left:8px;
+	background:url('/telus/images/bg_tableHdrB.png');
+	/*border: 1px solid #000;*/
+	color:#FFFFFF;
+	line-height:20px;
+	font-weight:bold;
+	font-size:13px;
+    font-family:Trebuchet MS,arial,verdana;}
+  
+.formTitle {
+	text-align:left;
+  font-weight:bold;
+  font-size:13px;
+  text-height: 20px;
+  font-family:Trebuchet MS,arial,verdana;
+  padding: 10px 0px 5px 2px;}
+  
+.formHdr {
+table-layout:auto;
+text-align:left;
+  color: #0085bd;
+  font-size:13px;
+  font-family:Trebuchet MS,arial,verdana;}
+ 
+/******  Form Format  *********/
+th{
+	font:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	text-align:center;
+	background-color:#555;
+	color: #fff;
+	vertica-align:top;
+	TEXT-DECORATION: none;
+	}
+
+th a:link{
+	font:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	text-align:center;
+	background-color:#555;
+	color: #fff;
+	vertica-align:top;
+	TEXT-DECORATION: none;
+	}
+	
+th a {
+	font:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	text-align:center;
+	background-color:#555;
+	color: #fff;
+	vertica-align:top;
+	TEXT-DECORATION: none;
+	}
+
+th a:hover {
+color : #fff;  
+text-decoration:none;
+
+}
+
+th a:visited {
+color : #fff;  
+text-decoration :none ;
+ 
+ }
+th a:visited:hover {
+color : #fff;  
+text-decoration : none; 
+
+}	
+
+  
+.tableText {
+  text-align:left;
+  font-size:13px;
+  font-family:Trebuchet MS,arial,verdana;
+  border-top:1px solid #aaa;
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;
+	}
+
+#tableTitle {
+	font-family:verdana;
+	color: #000000;
+	font-weight:bold;
+	font-size:13px;
+	background-image:url('/telus/images/titleBgGray33.gif');
+	height:33px;
+	text-align:center;
+	}
+	
+	
+  
+.bgW {
+	font-family:Arial, Helvetica, sans-serif;
+	font-size:12px;
+	background-color: #FFF;
+}
+  
+.cellText {
+  font-size:13px;
+  font-family:Trebuchet MS,arial,verdana;
+  }
+  
+.grid_rb {
+  border-right:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+
+.grid_rt {
+  border-right:1px solid #aaa;
+  border-top:1px solid #aaa;}
+  
+.grid_lb {
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+.grid_lrb {
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+#grid_lrb {
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+.grid_lbt {
+  border-top:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+.grid_frame {
+  border-top:1px solid #aaa;
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+
+.grid_lt {
+  border-top:1px solid #aaa;
+  border-left:1px solid #aaa;}
+   
+.grid_lrt {
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-top:1px solid #aaa;}  
+  
+.grid_lr {
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;}
+  
+.grid_l {
+  border-left:1px solid #aaa;}  
+  
+.grid_r {
+  border-right:1px solid #aaa;}
+  
+.grid_b {
+  border-bottom:1px solid #aaa;}
+  
+.grid_t {
+  border-top:1px solid #aaa;}
+
+.grid_bt {
+  border-top:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+
+.tableRollOverEffect1{
+		background-color:#ddd;
+		color:#000;
+	}
+
+	
+	
+.tableRowClickEffect1{
+		background-color:#cccccc;
+		color:#000;
+}
+
+
+
+
+.edit {
+   width:1000px;
+   margin-top:0px;
+   *margin-right:-10px;
+   margin-bottom:-5px;}
+   
+ /*****  Welcome  Nev. Page  ***/  
+
+.nevPage {
+  width: 660px;
+  height: 300px;
+  margin: 0 auto;
+  padding-top: 30px;
+}
+.icon {
+  display: inline-block;
+  position: relative;
+  width: 80px;
+  height: 100px;
+  margin-top: 40px;
+  background-color: #E1E2E3;
+  font-family: arial;
+  
+}
+.icon:before {
+  width: 0;
+  height: 30px;
+  border-left: 10px solid #E1E2E3;
+  border-top: 10px solid transparent;
+  position: absolute;
+  content: "";
+  top: 0px;
+  right: -10px;
+}
+.icon:after {
+  width: 0; 
+  height: 0;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid rgba(0,0,0,.3);
+  position: absolute;
+  content: "";
+  top: 0px;
+  right: -10px;
+}
+.doc-type {
+	position: absolute;
+	bottom: 0px;
+	width: 50px;
+	height: 80px;
+	font-size: 10px;
+	text-transform: uppercase;
+	text-align: center;
+	line-height: 11px;
+	color: #FFF;
+	left: 15px;
+}
+
+.doc-type a{
+	color:#FFF;
+	text-decoration:none;
+}
+
+
+
+.icon.turquoise { background-color: #009999;  z-index: 6; }
+.icon.turquoise:before { border-left-color: #009999; }
+
+
+.icon.darkgreen { background-color: #33C36B;  z-index: 5; }
+.icon.darkgreen:before { border-left-color: #33C36B; }
+
+
+.icon.lightgreen { background-color: #99CC00;  z-index: 4; }
+.icon.lightgreen:before { border-left-color: #99CC00; }
+
+
+.icon.yellow { background-color: #F1B705;  z-index: 3; }
+.icon.yellow:before { border-left-color: #F1B705; }
+
+
+.icon.orange { background-color: #FF7C14; z-index: 2; }
+.icon.orange:before { border-left-color: #FF7C14; }
+
+
+.icon.red { background-color: #DE4206; z-index: 1; }
+.icon.red:before { border-left-color: #DE4206; }
+
+
+
+
+
+
+   
+   

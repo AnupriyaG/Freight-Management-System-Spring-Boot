@@ -1,0 +1,3084 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+FMS (Spring) Database Configuration
+
+This files contains the settings used to connect to the database server.
+This file also contains the queries that FMS will execute on the server.
+Please define your queries here instead of in a java file.
+
+Structure of this XML document:
+<dbconfig>                                 - Root Element
+          <profiles>                       - One file can hold multiple connection profiles
+                active=''                    The active profile is specified by the 'active' attribute
+                <profile>                    Denotes a new profile
+                     name=''                 The name of the profile
+                     <driver>                The JDBC Driver to be used
+                     <uri>                   The connection uri
+          <views>
+                <view>						contains query to be executed by the view
+                	name=''					Name of the view
+                	
+For ease of reading, views should be named <module>_<type>_<query>
+e.g. UserManagement_Select_UserDetailsByID, UserManagement_Insert_User
+-->
+<dbconfig>
+	<profiles active="dev">
+		<profile name="dev">
+			<driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+			<uri>jdbc:sqlserver://TRANS19-BRIJESH.resource.campus.njit.edu:1433;databaseName=Trans_FMS2;user=telus_user;password=telus_user_20110316;</uri>
+		</profile>
+		<profile name="prod">
+			<driver>com.microsoft.sqlserver.jdbc.SQLServerDriver</driver>
+			<uri>jdbc:sqlserver://transprod06.njit.edu\transportation;databaseName=Trans_FMS2;user=telus_user;password=telus_user_20110316;</uri>
+		</profile>
+	</profiles>
+	<views>
+		<view name="Login_ClearCustomReports">
+			DELETE FROM [dbo].[CustomProjects] WHERE Username = '${USERNAME}'
+		</view>
+		<view name="DBDropdown_Select_Intersections">
+			SELECT DISTINCT road
+			FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE
+			ORDER BY road ASC
+		</view>
+		<view name="DBDropdown_Select_DirectionByRoad">
+			SELECT DISTINCT direction
+			FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE
+			WHERE road = ${ROAD}
+			ORDER BY direction
+		</view>
+		<view name="DBDropdown_Select_Route">
+			SELECT DISTINCT route
+			FROM fms_stip
+			WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND route IS NOT NULL AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+		</view>
+		<view name="DBDropdown_Select_DBNUM">
+			SELECT DBNUM
+			FROM fms_stip
+			WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND DBNUM IS NOT NULL AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			GROUP BY DBNUM
+			ORDER BY DBNUM
+		</view>
+		<view name="DBDropdown_Select_ProjectName">
+			SELECT PROJECT_NAME
+			FROM fms_stip
+			WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND PROJECT_NAME IS NOT NULL AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			GROUP BY DBNUM, PROJECT_NAME
+			ORDER BY PROJECT_NAME
+		</view>
+		<view name="DBDropdown_Select_County">
+			SELECT distinct COUNTY
+			FROM fms_stip
+			WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND COUNTY IS NOT NULL AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			ORDER BY COUNTY
+		</view>
+		<view name="DBDropdown_Select_Municipality">
+			SELECT distinct MUNC1
+			FROM fms_stip
+			WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND MUNC1 IS NOT NULL AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			ORDER BY MUNC1
+		</view>
+		<view name="DBDropdown_Select_MPO">
+			SELECT distinct MPO
+			FROM fms_stip
+			WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND MPO IS NOT NULL AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			ORDER BY MPO
+		</view>
+		<view name="DBDropdown_Select_ProgManag">
+			SELECT distinct PROGMANAG
+			FROM fms_stip
+			WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			ORDER BY PROGMANAG
+		</view>
+		<view name="DBDropdown_Select_RouteFromSegment">
+			SELECT distinct ROUTE
+			FROM fms_segment
+			ORDER BY ROUTE
+		</view>
+		<view name="DBDropdown_Select_AssetManCat">
+			SELECT distinct CIS_PROGRAM_CATEGORY
+			FROM fms_stip
+			WHERE CIS_PROGRAM_CATEGORY IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			and SRI is not null
+			ORDER BY CIS_PROGRAM_CATEGORY
+		</view>
+		<view name="DBDropdown_Select_AssetManSubCatByCategory">
+			SELECT distinct CIS_SUBCATEGORY
+			FROM fms_stip
+			WHERE CIS_SUBCATEGORY IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS INT) &lt; 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+			and SRI is not null
+			AND CIS_PROGRAM_CATEGORY = ${CATEGORY}
+			ORDER BY CIS_SUBCATEGORY
+		</view>
+		<view name="DBDropdown_Select_CustomProjects">
+			select DBNUM, ROUTE + ' MP ' + CONVERT(varchar, MP_START) + ' to ' + CONVERT(varchar, MP_END) from CustomProjects
+		</view>
+		<view name="DBDropdown_Select_CustomProjectsByUsername">
+			select DBNUM, ROUTE + ' MP ' + CONVERT(varchar, MP_START) + ' to ' + CONVERT(varchar, MP_END) from CustomProjects WHERE Username = ${USERNAME}
+		</view>
+		<view name="JQPlot_Select_TTTRLine_TicksByYearAndDirectionAndRoad">
+			SELECT Milepost 
+			FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+			WHERE DATA_YEAR_TRUCK = ${DATA_YEAR_TRUCK} 
+			AND direction = '${DIRECTION}' 
+			AND road = '${ROAD}' 
+			and TIME_PERIOD_TRUCK = 'Overnight' 
+			ORDER BY direction, TIME_PERIOD_TRUCK, road_order
+		</view>
+		<view name="JQPlot_Select_TTTRLine_SeriesByYearAndDirectionAndRoad">
+			SELECT 
+				distinct TIME_PERIOD_TRUCK,  
+				(CASE 
+					WHEN TIME_PERIOD_TRUCK = 'Weekdays 6AM - 10AM' THEN 1 
+					WHEN TIME_PERIOD_TRUCK = 'Weekdays 10AM - 4PM' THEN 2 
+					WHEN TIME_PERIOD_TRUCK = 'Weekdays 4PM - 8PM' THEN 3 
+					WHEN TIME_PERIOD_TRUCK = 'Overnight' THEN 4 
+					WHEN TIME_PERIOD_TRUCK = 'Weekends' THEN 5 
+				END ) TIME_PERIOD_ORDER 
+			FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+			WHERE DATA_YEAR_TRUCK = ${DATA_YEAR_TRUCK} 
+			AND direction = '${DIRECTION}' 
+			AND road = '${ROAD}' 
+			ORDER BY TIME_PERIOD_ORDER
+		</view>
+		<view name="JQPlot_Select_TTTRLine_DataByYearAndDirectionAndRoad">
+			SELECT 
+				TIME_PERIOD_TRUCK, 
+				road_order, 
+				SEG_TTTR, 
+				milepost, 
+				(CASE 
+					WHEN TIME_PERIOD_TRUCK = 'Weekdays 6AM - 10AM' THEN 1 
+					WHEN TIME_PERIOD_TRUCK = 'Weekdays 10AM - 4PM' THEN 2 
+					WHEN TIME_PERIOD_TRUCK = 'Weekdays 4PM - 8PM' THEN 3 
+					WHEN TIME_PERIOD_TRUCK = 'Overnight' THEN 4 
+					WHEN TIME_PERIOD_TRUCK = 'Weekends' THEN 5 
+				END ) TIME_PERIOD_ORDER 
+			FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+			WHERE DATA_YEAR_TRUCK = ${DATA_YEAR_TRUCK} 
+			AND direction = '${DIRECTION}' 
+			AND road = '${ROAD}' 
+			ORDER BY direction, TIME_PERIOD_ORDER, road_order
+		</view>
+		<view name="JQPlot_Select_MaxTTTRLine_DataByYearAndDirectionAndRoad">
+			SELECT road_order, MAX_TTTR, milepost 
+			FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+			WHERE DATA_YEAR_TRUCK = ${DATA_YEAR_TRUCK} 
+			AND direction = '${DIRECTION}' 
+			AND road = '${ROAD}' 
+			and TIME_PERIOD_TRUCK = 'Overnight' 
+			ORDER BY direction, TIME_PERIOD_TRUCK, road_order
+		</view>
+		<view name="JQPlot_Select_TTTRIBar_TicksByRoad">
+			SELECT DISTINCT data_year_truck FROM dbo.NPMRDS_INTERSTATE_PERFORMANCE_MEASURE WHERE road='${ROAD}' ORDER BY data_year_truck
+		</view>
+		<view name="JQPlot_Select_TTTRIBar_Data">
+			SELECT TTTR_INDEX FROM AnnualChartData order by DataYear
+		</view>
+		<view name="JQPlot_Select_MilesUncon_Data">
+			SELECT PercInterstateMilageUncongested FROM AnnualChartData order by DataYear
+		</view>
+		<view name="JQPlot_Select_MilesUncon_DataByYearAndRoad">
+			SELECT PERC_MILE_UNCONGESTED_OVERALL 
+			FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+			WHERE DATA_YEAR_TRUCK = ${DATA_YEAR_TRUCK} 
+			AND road = '${ROAD}'
+		</view>
+		<view name="JQPlot_Select_CrashPerc_Data">
+			SELECT LargeTruckCrash, OtherTruckCrash FROM AnnualChartData order by DataYear
+		</view>
+		<view name="JQPlot_Select_CrashPerc_DataByYearAndRoadAndDirection">
+			SELECT LargeTruckCrashPercent, OtherTruckCrashPercent 
+			FROM AnnualInterstateCrashRate 
+			WHERE DataYear = ${DATAYEAR} 
+			AND Road = '${ROAD}' 
+			AND Direction='${DIRECTION}'
+		</view>
+		<view name="JQPlot_Select_TruckVolumePerc_Data">
+			SELECT 
+				ROUTE, 
+				(PercentOfTruckVol * 100) AS PercentOfTruckVolume, 
+				Direc AS Direction 
+			FROM TruckVolume 
+			WHERE ROUTE = '${ROUTE}' 
+			AND Direc = '${DIREC}'
+		</view>
+		<view name="ExcelReport_TTTRI">
+			SELECT 
+				DataYear AS 'Year', 
+				TTTR_INDEX AS 'TTTR Index' 
+			FROM AnnualChartData 
+			order by DataYear
+		</view>
+		<view name="ExcelReport_MilesUncon">
+			SELECT 
+				DataYear AS 'Year', 
+				PercInterstateMilageUncongested AS 'Miles Uncongested'
+			FROM AnnualChartData 
+			order by DataYear
+		</view>
+		<view name="ExcelReport_PercTotalCrashes">
+		SELECT 
+			DataYear AS 'Year',
+			LargeTruckCrash AS 'Large Truck', 
+			OtherTruckCrash AS 'Other Truck' 
+		FROM AnnualChartData 
+		order by DataYear
+		</view>
+		<view name="ExcelReport_TTTR">
+			SELECT
+    Road,
+    Direction,
+    [Road Order],
+    [TMC Code],
+    [Milepost],
+    [Weekdays 6AM - 10AM],
+    [Weekdays 10AM - 4PM],
+    [Weekdays 4PM - 8PM],
+    [Overnight],
+    [Weekends] 
+  FROM
+    ( SELECT
+        road           AS Road,
+        Direction,
+        road_order      AS [Road Order],
+        TMC_CODE_TRUCK AS [TMC Code],
+        TIME_PERIOD_TRUCK,
+        milepost        AS [Milepost],
+        SEG_TTTR 
+      FROM
+        NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+      WHERE
+        DATA_YEAR_TRUCK = ${DATA_YEAR_TRUCK} 
+        AND direction = '${DIRECTION}' 
+        AND road = '${ROAD}' ) AS SourceTable PIVOT(AVG([SEG_TTTR]) FOR 
+    [TIME_PERIOD_TRUCK] IN([Weekdays 6AM - 10AM],
+   [Weekdays 10AM - 4PM],
+    [Weekdays 4PM - 8PM],
+    [Overnight],
+    [Weekends])) AS PivotTable 
+  ORDER BY
+    Road,
+    Direction,
+    [Road Order]
+		</view>
+		<view name="ExcelReport_MilesUnconRoad">
+			SELECT 
+				DataYear AS 'Year', 
+				Road, 
+				Direction,
+				LargeTruckCrashPercent AS 'Large Truck', 
+				OtherTruckCrashPercent AS 'Other Truck' 
+			FROM AnnualInterstateCrashRate 
+			WHERE DataYear = ${DATAYEAR} 
+			AND Road = '${ROAD}' 
+			AND Direction='${DIRECTION}'
+		</view>
+		<view name="ExcelReport_PercCrashes">
+			SELECT 
+				DataYear AS 'Year', 
+				Road, 
+				Direction, 
+				LargeTruckCrashPercent AS 'Large Truck', 
+				OtherTruckCrashPercent AS 'Other Truck' 
+			FROM AnnualInterstateCrashRate 
+			WHERE DataYear = ${DATAYEAR} 
+			AND Road = '${ROAD}' 
+			AND Direction='${DIRECTION}'
+		</view>
+		<view name="ExcelReport_PercTruckVolume">
+			SELECT 
+				ROUTE AS 'Route', 
+				(PercentOfTruckVol * 100) AS 'Perc. Truck Volume', 
+				Direc AS Direction 
+			FROM TruckVolume 
+			WHERE ROUTE = '${ROUTE}' 
+			AND Direc = '${DIREC}'
+		</view>
+		<view name="Report_Excel">
+			SELECT T1.DBNUM,
+         T1.[Project Type],
+         T1.[Project Name],
+         T1.Route,
+         T1.SRI,
+         T1.[Start MP],
+         T1.[End MP],
+         T1.MPO,
+         T1.[System Name],
+         T1.[Large Truck Severity Rate],
+         T1.[Overweight Truck Permits],
+         T1.[Percentage of Large Truck Volume],
+         T1.[Truck Travel Time Reliability Index],
+         T1.[National Highway Network],
+         T1.[Large Truck Crash Rate],
+         T1.[Intermodal Connector],
+         T1.[NJ Access Network],
+         T1.[National Highway Freight Network],
+         T1.[Total Score], 
+(CASE WHEN T1.[Total Score] Between T2.Acceptable_Range_From AND T2.Acceptable_Range_To THEN 'Acceptable'
+                    WHEN T1.[Total Score] Between T2.Low_Range_From AND T2.Low_Range_To THEN 'Low Priority'
+                    WHEN T1.[Total Score] Between T2.Medium_Range_From AND T2.Medium_Range_To THEN 'Medium Priority'
+                    WHEN T1.[Total Score] Between T2.High_Range_From AND T2.High_Range_To THEN 'High Priority'
+                    ELSE ' ' 
+              END) AS Priority FROM (SELECT
+  DISTINCT DBNUM,
+
+
+  CIS_PROGRAM_CATEGORY [Project Type],
+  PROJECT_NAME [Project Name],
+  ROUTE Route,
+  SRI,
+  MP_FROM [Start MP],
+  MP_TO [End MP],
+  MPO,
+  SystemName [System Name],
+  SEV_SCR_STIP [Large Truck Severity Rate],
+  OVERWEIGHT_SCR_STIP [Overweight Truck Permits],
+  LT_PERC_STIP [Percentage of Large Truck Volume],
+  TTTRI_SCR_STIP [Truck Travel Time Reliability Index],
+  NHS_SCR_STIP [National Highway Network],
+  LT_SCR_STIP [Large Truck Crash Rate],
+  INTERMODAL_SCR_STIP [Intermodal Connector],
+  NJ_ACCESS_SCR_STIP [NJ Access Network],
+  NHFN_SCR_STIP [National Highway Freight Network],
+  TOTAL_SEG_SCR [Total Score] 
+FROM
+  ( SELECT
+      T4.DBNUM,
+      t4.gis_url,
+      T4.SRI,
+      T4.MP_FROM,
+      T4.MP_TO,
+      T4.PROJECT_NAME,
+      T4.ROUTE,
+      T4.COUNTY,
+      T4.MUNC1,
+      T4.MPO,
+      T4.SystemName,
+      T4.PROGMANAG,
+      T4.SYSTEMID,
+      T4.CIS_PROGRAM_CATEGORY,
+      T4.CR_SCR_STIP,
+      T4.SEV_SCR_STIP,
+      t4.LT_PERC_STIP,
+      T4.NHS_SCR_STIP,
+      T4.NJ_ACCESS_SCR_STIP,
+      T4.INTERMODAL_SCR_STIP,
+      T4.NHFN_SCR_STIP,
+      T4.LT_SCR_STIP,
+      T4.OVERWEIGHT_SCR_STIP,
+      T4.TTTRI_SCR_STIP,
+      T4.TOTAL_SEG_SCR,
+      T5.MAX_TOTAL_SEG_SCR,
+      T5.AVG_TOTAL_SEG_SCR 
+    FROM
+      ( SELECT
+          T1.DBNUM,
+          GIS_URL,
+          T1.SRI,
+          T1.MP_FROM,
+          T1.MP_TO,
+          T1.PROJECT_NAME,
+          T1.ROUTE,
+          T1.COUNTY,
+          T1.CIS_PROGRAM_CATEGORY,
+          T1.MUNC1,
+          T1.SystemName,
+          T1.MPO,
+          T1.PROGMANAG,
+          T1.SYSTEMID,
+          CONVERT(FLOAT,T1.LT_PERC)                                                                                                                                                                                                                                                                                          
+          AS LT_PERC_STIP,
+          CONVERT(FLOAT,T1.CR_SCR)                                                                                                                                                                                                                                                                                           
+          AS CR_SCR_STIP,
+          CONVERT(FLOAT,T1.SEV_SCR)                                                                                                                                                                                                                                                                                          
+          AS SEV_SCR_STIP,
+          CONVERT(FLOAT,T1.NHS_SCR)                                                                                                                                                                                                                                                                                          
+          AS NHS_SCR_STIP,
+          CONVERT(FLOAT,T1.NJ_ACCESS_SCR)                                                                                                                                                                                                                                                                                    
+          AS NJ_ACCESS_SCR_STIP,
+          CONVERT(FLOAT,T1.INTERMODAL_SCR)                                                                                                                                                                                                                                                                                   
+          AS INTERMODAL_SCR_STIP,
+          CONVERT(FLOAT,T1.NHFN_SCR)                                                                                                                                                                                                                                                                                         
+          AS NHFN_SCR_STIP,
+          CONVERT(FLOAT,T1.LT_SCR)                                                                                                                                                                                                                                                                                           
+          AS LT_SCR_STIP,
+          CONVERT(FLOAT,T1.OVERWEIGHT_SCR)                                                                                                                                                                                                                                                                                   
+          AS OVERWEIGHT_SCR_STIP,
+          CONVERT(FLOAT,T1.TTTRI_SCR)                                                                                                                                                                                                                                                                                        
+          AS TTTRI_SCR_STIP,
+          (CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,T1.NHS_SCR) + CONVERT(FLOAT
+          ,T1.NJ_ACCESS_SCR) +
+          --CONVERT(float,T1.CR_SCR) +
+          CONVERT(FLOAT,T1.INTERMODAL_SCR) + CONVERT(FLOAT,T1. NHFN_SCR) + 
+          CONVERT(FLOAT,T1.LT_SCR) + CONVERT(FLOAT, T1. OVERWEIGHT_SCR) + 
+          CONVERT(FLOAT,T1.TTTRI_SCR) + CONVERT( FLOAT,T1.LT_PERC)) AS 
+          TOTAL_SEG_SCR 
+        FROM
+          ( SELECT
+              fms_stip.DBNUM,
+              GIS_URL,
+              SRI,
+              MP_FROM,
+              MP_TO,
+              PROJECT_NAME,
+              CIS_PROGRAM_CATEGORY,
+              ROUTE,
+              COUNTY,
+              MUNC1,
+              MPO,
+              PROGMANAG,
+              F1.SYSTEMID,
+              MPO2                                     AS CR_SCR,
+              F1.[Large Truck Severity Rate]           AS SEV_SCR,
+              F1.[Percentage of Large Truck Volume]    AS LT_PERC,
+              F1.[National Highway Network]            AS NHS_SCR,
+              F1.[New Jersey Access Network]           AS NJ_ACCESS_SCR,
+              F1.[Intermodal Connector]                AS INTERMODAL_SCR,
+              F1.[National Highway Freight Network]    AS NHFN_SCR ,
+              F1.[Large Truck Crash Rate]              AS LT_SCR,
+              F1.[Overweight Truck Permits]            AS OVERWEIGHT_SCR,
+              F1.[Truck Travel Time Reliability Index] AS TTTRI_SCR,
+              F1.SystemName 
+            FROM
+              fms_stip 
+              JOIN (SELECT
+                      YEAR,
+                      DBNUM,
+                      SYSTEMID,
+                      SystemName,
+                      ISNULL([Large Truck Crash Rate],0)                AS 
+                      [Large Truck Crash Rate],
+                      ISNULL([Large Truck Severity Rate],0)             AS 
+                      [Large Truck Severity Rate],
+                      ISNULL([National Highway Network],0)              AS 
+                      [National Highway Network],
+                      ISNULL([New Jersey Access Network],0)             AS 
+                      [New Jersey Access Network],
+                      ISNULL([Intermodal Connector],0)                  AS 
+                      [Intermodal Connector],
+                      ISNULL( [National Highway Freight Network],0)     AS 
+                      [National Highway Freight Network],
+                      ISNULL( [Percentage of Large Truck Volume],0)     AS 
+                      [Percentage of Large Truck Volume],
+                      ISNULL( [Truck Travel Time Reliability Index] ,0) AS 
+                      [Truck Travel Time Reliability Index],
+                      ISNULL([Overweight Truck Permits],0)              AS 
+                      [Overweight Truck Permits] 
+                    FROM
+                      ( SELECT
+                          YEAR,
+                          dbnum,
+                          systemid,
+                          score,
+                          factor_description,
+                          systemname 
+                        FROM
+                          ( SELECT
+                              p.*,
+                              f.Factor_Description,
+                              f.Weight,
+                              systemname 
+                            FROM
+                              scrproject p 
+                              JOIN scrfactor f 
+                              ON p.SystemID = f. SystemID,
+                              scrsystem x 
+                            WHERE
+                              x.systemID = p.systemid 
+                              AND p.Cat_ID = f.Cat_ID 
+                              AND p.Factor_ID = f. Factor_ID )i )p pivot ( SUM(
+                      score) FOR Factor_Description IN ( 
+                      [Large Truck Crash Rate],
+                      [Large Truck Severity Rate],
+                      [National Highway Network],
+                      [New Jersey Access Network],
+                      [Intermodal Connector],
+                      [National Highway Freight Network],
+                      [Percentage of Large Truck Volume],
+                      [Truck Travel Time Reliability Index],
+                      [Overweight Truck Permits])) AS pvt) F1 
+              ON fms_stip.DBNUM = F1.DBNUM ) T1) T4,
+      ( SELECT
+          DISTINCT T3.DBNUM,
+          T3.SYSTEMID,
+          MAX(T3.TOTAL_SEG_SCR) AS MAX_TOTAL_SEG_SCR,
+          AVG(T3.TOTAL_SEG_SCR) AS AVG_TOTAL_SEG_SCR 
+        FROM
+          ( SELECT
+              T1.DBNUM,
+              T1.SRI,
+              T1.MP_FROM,
+              T1.MP_TO,
+              (CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,T1. NHS_SCR) + CONVERT(
+              FLOAT,T1.NJ_ACCESS_SCR) +
+              --CONVERT(float,T1.CR_SCR) +
+              CONVERT(FLOAT,T1.INTERMODAL_SCR) + CONVERT(FLOAT,T1. NHFN_SCR) + 
+              CONVERT(FLOAT,T1.LT_SCR) + CONVERT ( FLOAT,T1.OVERWEIGHT_SCR) + 
+              CONVERT(FLOAT,T1. TTTRI_SCR ) + CONVERT(FLOAT,T1.LT_PERC)) AS 
+              TOTAL_SEG_SCR,
+              T1.SYSTEMID 
+            FROM
+              ( SELECT
+                  fms_stip.DBNUM,
+                  SRI,
+                  MP_FROM,
+                  MP_TO,
+                  MPO2                                     AS CR_SCR,
+                  F3.[Large Truck Severity Rate]           AS SEV_SCR,
+                  F3.[Percentage of Large Truck Volume]    AS LT_PERC,
+                  F3.[National Highway Network]            AS NHS_SCR,
+                  F3.[New Jersey Access Network]           AS NJ_ACCESS_SCR,
+                  F3.[Intermodal Connector]                AS INTERMODAL_SCR,
+                  F3.[National Highway Freight Network]    AS NHFN_SCR,
+                  F3.[Large Truck Crash Rate]              AS LT_SCR,
+                  F3.[Overweight Truck Permits]            AS OVERWEIGHT_SCR,
+                  F3.[Truck Travel Time Reliability Index] AS TTTRI_SCR,
+                  PROGMANAG,
+                  F3.SYSTEMID 
+                FROM
+                  fms_stip 
+                  JOIN (SELECT
+                          YEAR,
+                          DBNUM,
+                          SYSTEMID,
+                          ISNULL([Large Truck Crash Rate], 0)                AS 
+                          [Large Truck Crash Rate],
+                          ISNULL( [Large Truck Severity Rate],0)             AS 
+                          [Large Truck Severity Rate],
+                          ISNULL( [National Highway Network],0)              AS 
+                          [National Highway Network],
+                          ISNULL( [New Jersey Access Network],0)             AS 
+                          [New Jersey Access Network],
+                          ISNULL([Intermodal Connector],0)                   AS 
+                          [Intermodal Connector],
+                          ISNULL( [National Highway Freight Network] ,0)     AS 
+                          [National Highway Freight Network] ,
+                          ISNULL( [Percentage of Large Truck Volume] ,0)     AS 
+                          [Percentage of Large Truck Volume] ,
+                          ISNULL( [Truck Travel Time Reliability Index] ,0 ) AS 
+                          [Truck Travel Time Reliability Index] ,
+                          ISNULL( [Overweight Truck Permits],0)              AS 
+                          [Overweight Truck Permits] 
+                        FROM
+                          ( SELECT
+                              YEAR,
+                              dbnum,
+                              systemid,
+                              score,
+                              factor_description 
+                            FROM
+                              ( SELECT
+                                  p.*,
+                                  f. Factor_Description ,
+                                  f.Weight 
+                                FROM
+                                  scrproject p 
+                                  JOIN scrfactor f 
+                                  ON p.SystemID = f.SystemID 
+                                WHERE
+                                 
+p.Cat_ID = f. Cat_ID 
+                                  AND p.Factor_ID = f. Factor_ID )i)p pivot (SUM
+                          (score) FOR Factor_Description IN ( 
+                          [Large Truck Crash Rate],
+                          [Large Truck Severity Rate],
+                          [National Highway Network],
+                          [New Jersey Access Network],
+                          [Intermodal Connector],
+                          [National Highway Freight Network] ,
+                          [Percentage of Large Truck Volume] ,
+                          [Truck Travel Time Reliability Index] ,
+                          [Overweight Truck Permits])) AS pvt) F3 
+                  ON fms_stip.DBNUM = F3.DBNUM ) T1) T3 
+        GROUP BY
+          T3.DBNUM,
+          T3.SYSTEMID) T5 
+    WHERE
+      T4.DBNUM = T5.DBNUM 
+      AND T4.TOTAL_SEG_SCR = T5.MAX_TOTAL_SEG_SCR) T6 
+WHERE
+  SRI IS NOT NULL 
+  AND MP_TO != 0
+ AND ${CUSTOMSQL}
+  ) T1, priorityscrrange T2
+		</view>
+		<view name="STIPReportMapBoundingBoxQuery">
+		SELECT
+      B.lat                  AS SEGMENT_LAT,
+      B.long                 AS SEGMENT_LONG,
+      STUFF ( ( SELECT ',' + long + ' ' + lat 
+                FROM ( SELECT DISTINCT SRI, MP, long, lat FROM njdot_mpdata) C 
+                WHERE c.SRI = (CASE WHEN LEN(a.SRI) = 8 THEN a.SRI+'__' ELSE a.SRI+'_' END) 
+                    AND ROUND(A.MP_FROM, 1) &lt;= C.MP 
+                    AND ROUND(A.MP_TO,1) &gt;= C.MP+0.1 
+                ORDER BY C.MP, ',' + long + ' ' + lat FOR XML PATH('') ), 1, 1, '' ) AS LONLATSTR 
+    FROM
+      fms_stip AS A 
+      LEFT JOIN njdot_mpdata AS B 
+      ON ROUND(A.MP_FROM,1) &lt;= B.MP 
+      AND ROUND(A.MP_TO,1) &gt;= B.MP+0.1 
+      AND b.SRI = ( CASE WHEN LEN(a.SRI) = 8 THEN a.SRI+'__' ELSE a.SRI+'_' END) 
+    WHERE a.dbnum=${DBNUM} AND a.MP_FROM is not null and a.MP_TO is not null and a.MP_TO != 0 and a.SRI is not null
+		</view>
+<!-- ============================================================= -->
+<!-- TIPSearch Views -->
+<!-- ============================================================= -->
+			<!-- View added by Chitali Starts-->
+			<view>
+				<name>SearchResult</name>
+				<transportKey>NJDOT</transportKey>
+				<resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+				<schemas>
+					<name>tip_financial</name>
+					<name>scrProject</name>
+					<name>scrSystemUnq</name>
+					<name>tip_data</name>
+				</schemas>
+				<load type="sql">
+					select TIPDATA.*,scrproject.score Score,scrproject.systemid SystemID, SCRSYS_UNQ.SystemName SystemName from (SELECT DISTINCT
+					TIPDATA.YEAR YEAR,
+					TIPDATA.DBNUM DBNUM,
+					TIPDATA.REVISION REVISION,
+					TIPDATA.DBNUM2 DBNUM2,
+					TIPDATA.DBNUM3 DBNUM3,
+					TIPDATA.PROJ_NAME PROJ_NAME,
+					TIPDATA.LEAD_AGENCY LEAD_AGENCY,
+					TIPDATA.PROJ_CONTACT PROJ_CONTACT,
+					TIPDATA.PROJ_PHNUM PROJ_PHNUM,
+					TIPDATA.PROJECT_TYPE PROJECT_TYPE,
+					TIPDATA.SPONSOR SPONSOR,
+					TIPDATA.ROUTE ROUTE,
+					TIPDATA.MUNC1,
+					TIPDATA.MPO,
+					TIPDATA.COUNTY,
+					TIPDATA.MUNICIPALITY,
+					TIPDATA.PROGMANAG
+					FROM tip_data TIPDATA
+		
+					WHERE TIPDATA.PROJECT_TYPE = 'STIP') TIPDATA
+		
+					left join
+					(select year,dbnum,revision,systemID,round(sum(score),2) as score from (select
+					year,dbnum,revision,systemID,score from scrproject where
+					${CUSTOMSQL}) q1
+					group by year,dbnum,revision,systemID
+					) scrproject
+					on TIPDATA.dbnum = scrproject.dbnum and TIPDATA.year=TIPDATA.year and
+					TIPDATA.revision=scrproject.revision
+					left join scrsystem SCRSYS_UNQ on scrproject.systemID = SCRSYS_UNQ.systemID
+					where ${FILTER} AND ${AGENCY}
+					ORDER BY TIPDATA.DBNUM
+				</load>
+			</view>
+			<!-- View added by Chitali Ends-->
+			
+                <view>
+			<name>Search</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>tip_financial</name>
+                                <name>tip_data</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                                  SELECT      TIPDATA.YEAR YEAR,
+                                              TIPDATA.DBNUM DBNUM,
+                                              TIPDATA.REVISION  REVISION,
+                                              TIPDATA.DBNUM2 DBNUM2,
+                                              TIPDATA.DBNUM3 DBNUM3,
+                                              TIPDATA.PROJ_NAME PROJ_NAME,
+                                              TIPDATA.LEAD_AGENCY LEAD_AGENCY,
+                                              TIPDATA.PROJ_CONTACT PROJ_CONTACT,
+                                              TIPDATA.PROJ_PHNUM PROJ_PHNUM,
+                                              TIPDATA.PROJECT_TYPE PROJECT_TYPE,
+                                              TIPDATA.MODE MODE,
+                                              TIPDATA.REMARKS REMARKS,
+                                              TIPDATA.CORRIDOR CORRIDOR,
+                                              TIPDATA.ROUTE ROUTE,
+                                              TIPDATA.ROUTE_2 ROUTE_2,
+                                              TIPDATA.MAP_REFERENCE MAP_REFERENCE,
+                                              TIPDATA.MAP_LAYER_ID MAP_LAYER_ID,
+                                              TIPDATA.LIMITS LIMITS,
+                                              TIPDATA.DESCRIPT DESCRIPT,
+                                              TIPDATA.OBJECTIVE OBJECTIVE,
+                                              TIPDATA.MODECAT MODECAT,
+                                              TIPDATA.HWYCAT HWYCAT,
+                                              TIPDATA.FUNCCAT FUNCCAT,
+                                              TIPDATA.FHWACAT FHWACAT,
+                                              TIPDATA.PROJCAT PROJCAT,
+                                              TIPDATA.MPO_CAT MPO_CAT,
+                                              TIPDATA.AIR_QUALITY AIR_QUALITY,
+                                              TIPDATA.EIS EIS,
+                                              TIPDATA.LEGDIST1 LEGDIST1,
+                                              TIPDATA.LEGDIST2 LEGDIST2,
+                                              TIPDATA.LEGDIST3 LEGDIST3,
+                                              TIPDATA.LEGDIST4 LEGDIST4,
+                                              TIPDATA.STATE STATE,
+                                              TIPDATA.COUNTY1 COUNTY1,
+                                              TIPDATA.COUNTY2 COUNTY2,
+                                              TIPDATA.COUNTY3 COUNTY3,
+                                              TIPDATA.COUNTY4 COUNTY4,
+                                              TIPDATA.COUNTYPERC1 COUNTYPERC1,
+                                              TIPDATA.COUNTYPERC2 COUNTYPERC2,
+                                              TIPDATA.COUNTYPERC3 COUNTYPERC3,
+                                              TIPDATA.COUNTYPERC4 COUNTYPERC4,
+                                              TIPDATA.MUNC1 MUNC1,
+                                              TIPDATA.MUNC2 MUNC2,
+                                              TIPDATA.MUNC3 MUNC3,
+                                              TIPDATA.MUNC4 MUNC4,
+                                              TIPDATA.M_POSTS_FROM M_POSTS_FROM,
+                                              TIPDATA.M_POSTS_TO M_POSTS_TO,
+                                              TIPDATA.LENGTH LENGTH,
+                                              TIPDATA.TRANS TRANS,
+                                              TIPDATA.SPONSOR SPONSOR,
+											   TIPDATA.MPO MPO
+                                              <!--TIPDATA.COPY COPY,
+                                              TIPDATA.SCORESYSTEM SCORESYSTEM,
+                                              TIPDATA.FIELD1 FIELD1,
+                                              TIPDATA.FIELD2 FIELD2,
+                                              TIPDATA.FIELD3 FIELD3,
+                                              TIPDATA.FIELD4 FIELD4,
+                                              TIPDATA.FIELD5 FIELD5,
+                                              TIPDATA.FIELD6 FIELD6,
+                                              TIPDATA.FIELD7 FIELD7,
+                                              TIPDATA.FIELD8 FIELD8,
+                                              TIPDATA.FIELD9 FIELD9,
+                                              TIPDATA.FIELD10 FIELD10,-->
+
+                                      FROM    tip_data TIPDATA
+
+                                      WHERE TIPDATA.PROJECT_TYPE = 'STIP'
+                                      AND     ${FILTER} AND ${AGENCY} AND ${CUSTOMSQL}
+                                      ORDER BY    TIPDATA.DBNUM
+                          </load>
+			<!--</statements>-->
+		</view>
+		<view>
+					<name>SearchScore</name>
+					<transportKey>NJDOT</transportKey>
+								<resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+					<schemas>
+						<name>tip_data</name>
+										<name>scrProject</name>
+					</schemas>
+
+                                        <load type="sql">
+                                                      SELECT      TIPDATA.YEAR YEAR,
+                                                                      TIPDATA.DBNUM DBNUM,
+                                                                      TIPDATA.REVISION REVISION,
+                                                                      TIPDATA.DBNUM2 DBNUM2,
+                                                                      TIPDATA.DBNUM3 DBNUM3,
+                                                                      SCRPROJECT.Score Score,
+                                                                      SCRPROJECT.SystemID SystemID,
+                                                                      SCRPROJECT.Cat_ID Cat_ID,
+                                                                      SCRPROJECT.Factor_ID Factor_ID
+                                                      FROM    tip_data TIPDATA, scrProject SCRPROJECT
+
+                                                      WHERE   TIPDATA.YEAR = SCRPROJECT.YEAR
+                                                      AND     TIPDATA.DBNUM = SCRPROJECT.DBNUM
+                                                      AND     TIPDATA.REVISION = SCRPROJECT.REVISION
+                                                      AND     ${FILTER} AND ${AGENCY} AND ${CUSTOMSQL}
+                                        </load>
+
+				</view>
+
+
+<!-- ============================================================= -->
+<!-- TIPProject Views -->
+<!-- ============================================================= -->
+		<view>
+			<name>Main</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.RowEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT        TIPDATA.YEAR YEAR,
+                                              TIPDATA.DBNUM DBNUM,
+                                              TIPDATA.REVISION REVISION,
+                                              TIPDATA.DBNUM2 DBNUM2,
+                                              TIPDATA.DBNUM3 DBNUM3,
+                                              TIPDATA.PROJ_NAME PROJ_NAME,
+                                              TIPDATA.LEAD_AGENCY LEAD_AGENCY,
+                                              TIPDATA.PROJ_CONTACT PROJ_CONTACT,
+                                              TIPDATA.PROJ_PHNUM PROJ_PHNUM,
+                                              TIPDATA.PROJECT_TYPE PROJECT_TYPE,
+                                              TIPDATA.MODE MODE,
+                                              TIPDATA.REMARKS REMARKS,
+                                              TIPDATA.CORRIDOR CORRIDOR,
+                                              TIPDATA.ROUTE ROUTE,
+                                              TIPDATA.ROUTE_2 ROUTE_2,
+                                              TIPDATA.MAP_REFERENCE MAP_REFERENCE,
+                                              TIPDATA.MAP_LAYER_ID MAP_LAYER_ID,
+                                              TIPDATA.LIMITS LIMITS,
+                                              TIPDATA.DESCRIPT DESCRIPT,
+                                              TIPDATA.OBJECTIVE OBJECTIVE,
+                                              TIPDATA.MODECAT MODECAT,
+                                              TIPDATA.HWYCAT HWYCAT,
+                                              TIPDATA.FUNCCAT FUNCCAT,
+                                              TIPDATA.FHWACAT FHWACAT,
+                                              TIPDATA.PROJCAT PROJCAT,
+                                              TIPDATA.MPO_CAT MPO_CAT,
+                                              TIPDATA.TRANS TRANS,
+                                              TIPDATA.AIR_QUALITY AIR_QUALITY,
+                                              TIPDATA.EIS EIS,
+                                              TIPDATA.LEGDIST1 LEGDIST1,
+                                              TIPDATA.LEGDIST2 LEGDIST2,
+                                              TIPDATA.LEGDIST3 LEGDIST3,
+                                              TIPDATA.LEGDIST4 LEGDIST4,
+                                              TIPDATA.STATE STATE,
+                                              TIPDATA.COUNTY1 COUNTY1,
+                                              TIPDATA.COUNTY2 COUNTY2,
+                                              TIPDATA.COUNTY3 COUNTY3,
+                                              TIPDATA.COUNTY4 COUNTY4,
+                                              TIPDATA.COUNTYPERC1 COUNTYPERC1,
+                                              TIPDATA.COUNTYPERC2 COUNTYPERC2,
+                                              TIPDATA.COUNTYPERC3 COUNTYPERC3,
+                                              TIPDATA.COUNTYPERC4 COUNTYPERC4,
+                                              TIPDATA.MUNC1 MUNC1,
+                                              TIPDATA.MUNC2 MUNC2,
+                                              TIPDATA.MUNC3 MUNC3,
+                                              TIPDATA.MUNC4 MUNC4,
+                                              TIPDATA.M_POSTS_FROM M_POSTS_FROM,
+                                              TIPDATA.M_POSTS_TO M_POSTS_TO,
+                                              TIPDATA.LENGTH LENGTH,
+                                              TIPDATA.SPONSOR SPONSOR,
+                                              TIPDATA.OVERWEIGHT OVERWEIGHT,
+                                              TIPDATA.LARGE_TRUCK_VOLUME LARGE_TRUCK_VOLUME,
+                                              TIPDATA.SEVERITY SEVERITY,
+                                              TIPDATA.BLUE_ROUTE BLUE_ROUTE,
+                                              TIPDATA.INTERMODAL INTERMODAL,
+                                              TIPDATA.NJ_ACCESS NJ_ACCESS,
+                                              TIPDATA.NHS NHS,
+                                              TIPDATA.BTI BTI,
+                                              TIPDATA.LARGE_TRUCK_CRASH_RATE LARGE_TRUCK_CRASH_RATE
+                                              <!--TIPDATA.COPY COPY,
+                                              TIPDATA.SCORESYSTEM SCORESYSTEM,
+                                              TIPDATA.FIELD1 FIELD1,
+                                              TIPDATA.FIELD2 FIELD2,
+                                              TIPDATA.FIELD3 FIELD3,
+                                              TIPDATA.FIELD4 FIELD4,
+                                              TIPDATA.FIELD5 FIELD5,
+                                              TIPDATA.FIELD6 FIELD6,
+                                              TIPDATA.FIELD7 FIELD7,
+                                              TIPDATA.FIELD8 FIELD8,
+                                              TIPDATA.FIELD9 FIELD9,
+                                              TIPDATA.FIELD10 FIELD10-->
+
+                                  FROM        tip_data TIPDATA
+
+                                  WHERE       1=1
+                                  AND         YEAR = ${YEAR}
+                                  AND         DBNUM = ${DBNUM}
+                                  AND         REVISION = ${REVISION}
+
+                       </load>
+
+		</view>
+		<view>
+			<name>Financial</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_financial</name>
+			</schemas>
+
+                        <load type="sql">
+
+                           SELECT
+                                      TIPFIN.YEAR YEAR,
+                                      TIPFIN.DBNUM DBNUM,
+                                      TIPFIN.REVISION REVISION,
+                                      TIPFIN.PHASE PHASE,
+                                      TIPFIN.WORK WORK,
+                                      TIPFIN.SOURCE SOURCE,
+                                      TIPFIN.FUNDING_TYPE FUNDING_TYPE,
+                                      TIPFIN.AMOUNT AMOUNT,
+                                      TIPFIN.ACTUAL_FUNDING ACTUAL_FUNDING,
+                                      TIPFIN.PLAN_BEGIN_YEAR PLAN_BEGIN_YEAR,
+                                      TIPFIN.PLAN_BEGIN_QTR PLAN_BEGIN_QTR,
+                                      TIPFIN.PLAN_END_YEAR PLAN_END_YEAR,
+                                      TIPFIN.PLAN_END_QTR PLAN_END_QTR,
+                                      TIPFIN.ACT_BEGIN_YEAR ACT_BEGIN_YEAR,
+                                      TIPFIN.ACT_BEGIN_QTR ACT_BEGIN_QTR,
+                                      TIPFIN.ACT_END_YEAR ACT_END_YEAR,
+                                      TIPFIN.ACT_END_QTR ACT_END_QTR
+                          FROM        tip_financial TIPFIN
+
+                          WHERE       YEAR = ${YEAR} AND DBNUM = ${DBNUM}
+                                              AND REVISION = ${REVISION}
+
+                                  ORDER BY    TIPFIN.PLAN_BEGIN_YEAR
+                        </load>
+
+		</view>
+		<view>
+                    <name>TIPREL</name>
+                    <transportKey>NJDOT</transportKey>
+                      <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+                    <schemas>
+                                    <name>tip_related</name>
+
+                    </schemas>
+                    <!--<statements>-->
+                            <load type="sql">
+                                              SELECT      TIPREL.YEAR YEAR,
+                                                          TIPREL.DBNUM DBNUM,
+                                                          TIPREL.REVISION REVISION,
+                                                          TIPREL.RELATED_TO RELATED_TO,
+                                                          TIPREL.RELATED_NAME RELATED_NAME,
+                                                          TIPREL.RELATIONSHIP RELATIONSHIP,
+                                                          TIPREL.DEGREE DEGREE,
+                                                          TIPREL.COMMENTS COMMENTS
+                                              FROM        tip_related TIPREL
+                                              WHERE       ${FILTER}
+                                              ORDER BY    TIPREL.DBNUM, TIPREL.RELATED_TO
+                     </load>
+                    <!--</statements>-->
+              </view>
+              <view>
+                    <name>TiprelLoad</name>
+                    <transportKey>NJDOT</transportKey>
+                      <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+                    <schemas>
+                        <name>tip_related</name>
+                    </schemas>
+                    <!--<statements>-->
+                            <load type="sql">
+                                              SELECT      TIPREL.YEAR YEAR,
+                                                          TIPREL.DBNUM DBNUM,
+                                                          TIPREL.REVISION REVISION,
+                                                          TIPREL.RELATED_TO RELATED_TO,
+                                                          TIPREL.RELATED_NAME RELATED_NAME,
+                                                          TIPREL.RELATIONSHIP RELATIONSHIP,
+                                                          TIPREL.DEGREE DEGREE,
+                                                          TIPREL.COMMENTS COMMENTS
+                                              FROM        tip_related TIPREL
+                                              WHERE       1=1
+                                                          AND         YEAR = ${YEAR}
+                                                          AND         DBNUM = ${DBNUM}
+                                                          AND         REVISION = ${REVISION}
+                                              ORDER BY    TIPREL.DBNUM, TIPREL.RELATED_TO
+                     </load>
+                    <!--</statements>-->
+              </view>
+              <view>
+			  			<name>TIPBudget</name>
+			  			<transportKey>NJDOT</transportKey>
+			                          <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			  			<schemas>
+			                                  <name>tip_budget</name>
+			  			</schemas>
+			  			<!--<statements>-->
+			                          <load type="sql">
+			                                    SELECT      TIPBUDGET.YEAR YEAR,
+			                                                TIPBUDGET.FUNDING_TYPE FUNDING_TYPE,
+			                                                TIPBUDGET.FUNDING_SOURCE FUNDING_SOURCE,
+			                                                TIPBUDGET.YEAR0B YEAR0B,
+			                                                TIPBUDGET.YEAR1B YEAR1B,
+			                                                TIPBUDGET.YEAR2B YEAR2B,
+			                                                TIPBUDGET.YEAR3B YEAR3B,
+			                                                TIPBUDGET.YEAR4B YEAR4B,
+			                                                TIPBUDGET.YEAR5B YEAR5B,
+			                                                TIPBUDGET.YEAR9B YEAR9B,
+			                                                TIPBUDGET.YEAR0B+TIPBUDGET.YEAR1B +
+			                                                TIPBUDGET.YEAR2B+TIPBUDGET.YEAR3B +
+			                                                TIPBUDGET.YEAR4B+TIPBUDGET.YEAR5B +
+			                                                TIPBUDGET.YEAR9B TOTAL
+
+			                                        FROM    tip_budget TIPBUDGET
+			                                        WHERE   TIPBUDGET.YEAR = ${YEAR}
+			                                        ORDER BY TIPBUDGET.FUNDING_TYPE, TIPBUDGET.FUNDING_SOURCE
+
+			                            </load>
+			  			<!--</statements>-->
+			  		</view>
+			                  <view>
+			  			<name>TIPBudgetTotal</name>
+			  			<transportKey>NJDOT</transportKey>
+			                          <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			  			<schemas>
+			                                  <name>tip_budget</name>
+			  			</schemas>
+			  			<!--<statements>-->
+			                          <load type="sql">
+			                                   SELECT      TIPBUDGET.YEAR YEAR,
+			                                              sum(TIPBUDGET.YEAR0B) YEAR0B,
+			                                              sum(TIPBUDGET.YEAR1B) YEAR1B,
+			                                              sum(TIPBUDGET.YEAR2B) YEAR2B,
+			                                              sum(TIPBUDGET.YEAR3B) YEAR3B,
+			                                              sum(TIPBUDGET.YEAR4B) YEAR4B,
+			                                              sum(TIPBUDGET.YEAR5B) YEAR5B,
+			                                              sum(TIPBUDGET.YEAR9B) YEAR9B,
+			                                              sum(TIPBUDGET.YEAR0B) +
+			                                              sum(TIPBUDGET.YEAR1B) +
+			                                              sum(TIPBUDGET.YEAR2B) +
+			                                              sum(TIPBUDGET.YEAR3B) +
+			                                              sum(TIPBUDGET.YEAR4B) +
+			                                              sum(TIPBUDGET.YEAR5B) +
+			                                              sum(TIPBUDGET.YEAR9B)  TOTAL
+			                                    FROM      tip_budget TIPBUDGET
+			                                    WHERE     TIPBUDGET.YEAR = ${YEAR}
+			                                    GROUP BY  TIPBUDGET.YEAR
+
+			                            </load>
+			  			<!--</statements>-->
+			  		</view>
+			                  <view>
+			  			<name>TIPFinancialBySource</name>
+			  			<transportKey>NJDOT</transportKey>
+			                          <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			  			<schemas>
+			                                  <name>tip_financial</name>
+			  			</schemas>
+			  			<!--<statements>-->
+			                          <load type="sql">
+			                                    SELECT            TIPFIN.YEAR YEAR,
+			                                                      TIPFIN.SOURCE SOURCE,
+			                                                      sum(TIPFIN.AMOUNT) AMOUNT,
+			                                                      TIPFIN.PLAN_BEGIN_YEAR PLAN_BEGIN_YEAR
+			                                    FROM              tip_financial TIPFIN
+			                                    WHERE 	    TIPFIN.YEAR= ${YEAR}
+			                                    GROUP BY	    TIPFIN.SOURCE, TIPFIN.PLAN_BEGIN_YEAR, TIPFIN.YEAR
+			                                    ORDER BY          TIPFIN.SOURCE, TIPFIN.PLAN_BEGIN_YEAR
+
+			                            </load>
+			  			<!--</statements>-->
+			  		</view>
+			                  <view>
+			  			<name>TIPFinancialTotal</name>
+			  			<transportKey>NJDOT</transportKey>
+			                          <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			  			<schemas>
+			                                  <name>tip_financial</name>
+			  			</schemas>
+			  			<!--<statements>-->
+			                          <load type="sql">
+			                                    SELECT              TIPFIN.YEAR YEAR,
+			                                                        sum(TIPFIN.AMOUNT) AMOUNT,
+			                                                        TIPFIN.PLAN_BEGIN_YEAR PLAN_BEGIN_YEAR
+			                                    FROM                tip_financial TIPFIN
+			                                    WHERE 	      TIPFIN.YEAR= ${YEAR}
+			                                    GROUP BY  	      TIPFIN.PLAN_BEGIN_YEAR, TIPFIN.YEAR
+			                                    ORDER BY            TIPFIN.PLAN_BEGIN_YEAR
+
+			                            </load>
+			  			<!--</statements>-->
+		</view>
+              <view>
+                        <name>Status</name>
+                        <transportKey>NJDOT</transportKey>
+                          <resultholder>edu.njit.telus.tip.data.RowEditor</resultholder>
+                        <schemas>
+                                <name>tip_status</name>
+
+                        </schemas>
+                        <!--<statements>-->
+                            <load type="sql">
+                                      SELECT      TIPSTATUS.YEAR YEAR,
+                                                  TIPSTATUS.DBNUM DBNUM,
+                                                  TIPSTATUS.REVISION REVISION,
+                                                  TIPSTATUS.STATUS STATUS,
+                                                  TIPSTATUS.COMMCOMMENTS COMMCOMMENTS,
+                                                  TIPSTATUS.COMMSITUATION COMMSITUATION,
+                                                  TIPSTATUS.ENVIROCOMMENTS ENVIROCOMMENTS,
+                                                  TIPSTATUS.ENVIROSITUATION ENVIROSITUATION,
+                                                  TIPSTATUS.AIRQUALCOMMENTS AIRQUALCOMMENTS,
+                                                  TIPSTATUS.AIRQUALSITUATION AIRQUALSITUATION,
+                                                  TIPSTATUS.DESIGNCOMMENTS DESIGNCOMMENTS,
+                                                  TIPSTATUS.DESIGNSITUATION DESIGNSITUATION,
+                                                  TIPSTATUS.ROWCOMMENTS ROWCOMMENTS,
+                                                  TIPSTATUS.ROWSITUATION ROWSITUATION,
+                                                  TIPSTATUS.CONSTCOMMENTS CONSTCOMMENTS,
+                                                  TIPSTATUS.CONSTSITUATION CONSTSITUATION,
+                                                  TIPSTATUS.MAINTCOMMENTS MAINTCOMMENTS,
+                                                  TIPSTATUS.MAINTSITUATION MAINTSITUATION
+                                      FROM        tip_status TIPSTATUS
+                                      WHERE       YEAR = ${YEAR} AND DBNUM = ${DBNUM}
+                                                  AND REVISION = ${REVISION}
+                          </load>
+                        <!--</statements>-->
+		</view>
+                <!-- FOR PLANNING AND ANALYSIS -->
+                <view>
+                        <name>Ratios</name>
+                        <transportKey>NJDOT</transportKey>
+                          <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+                        <schemas>
+                                <name>tip_category</name>
+
+                        </schemas>
+                        <!--<statements>-->
+                            <load type="sql">
+                                      SELECT      
+                                      			  TIPCAT.MODE MODE,
+                                      			  TIPCAT.TRANS TRANS,
+                                                  TIPCAT.ECONOMIC_VITALITY ECONOMIC_VITALITY,
+                                                  TIPCAT.Safety Safety,
+                                                  TIPCAT.SECURITY SECURITY,
+                                                  TIPCAT.ACCESSIBILITY_MOBILITY ACCESSIBILITY_MOBILITY,
+                                                  TIPCAT.PROTECT_ENVIRONMENT PROTECT_ENVIRONMENT,
+                                                  TIPCAT.INTEGRATION_CONNECTIVITY INTEGRATION_CONNECTIVITY,
+                                                  TIPCAT.EFFICIENT_SYSTEM_MGMT EFFICIENT_SYSTEM_MGMT,
+                                                  TIPCAT.EMPHASIZE_SYSTEM_PRES EMPHASIZE_SYSTEM_PRES,
+                                                  TIPCAT.Congestion Congestion,
+                                                  TIPCAT.Infrastructure Infrastructure,
+                                                  TIPCAT.Reliability Reliability,
+                                                  TIPCAT.Freight Freight,
+                                                  TIPCAT.Sustainability Sustainability,
+                                                  TIPCAT.Project_Delivery Project_Delivery,
+                                                  TIPCAT.Fix_it_First Fix_it_First,
+                                                  TIPCAT.Smart_Growth Smart_Growth,
+                                                  TIPCAT.Transit_Oriented Transit_Oriented,
+                                                  TIPCAT.Default_percent Default_percent
+                                      FROM        tip_category TIPCAT
+                         </load>
+                        <!--</statements>-->
+		</view>
+                <view>
+                        <name>AnalysisResults</name>
+                        <transportKey>NJDOT</transportKey>
+                          <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+                        <schemas>
+                                <name>tip_category</name>
+
+                        </schemas>
+                        <!--<statements>-->
+                            <load type="sql">
+                                      SELECT      TIPCAT.DESCRIPTION DESCRIPTION,
+                                                  TIPCAT.TOTAL TOTAL,
+                                                  TIPCAT.PERCENTAGE PERCENTAGE
+                                      FROM        tip_category TIPCAT
+                         </load>
+                        <!--</statements>-->
+		</view>
+                <view>
+                        <name>AnalysisTotal</name>
+                        <transportKey>NJDOT</transportKey>
+                          <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+                        <schemas>
+                                <name>tip_category</name>
+
+                        </schemas>
+                        <!--<statements>-->
+                            <load type="sql">
+                                      SELECT      TIPCAT.ECONOMIC_VITALITY ECONOMIC_VITALITY,
+                                                  TIPCAT.TOTAL TOTAL,
+                                      FROM        tip_category TIPCAT
+                         </load>
+                        <!--</statements>-->
+		</view>
+                <!-- END PLANNING ANALYSIS -->
+                <view>
+                        <name>Counties</name>
+                        <transportKey>NJDOT</transportKey>
+                          <resultholder>edu.njit.telus.tip.data.RowEditor</resultholder>
+                        <schemas>
+                                <name>tip_data</name>
+
+                        </schemas>
+                        <!--<statements>-->
+                            <load type="sql">
+                                      SELECT     TIPDATA.YEAR YEAR,
+                                                 TIPDATA.DBNUM DBNUM,
+                                                 TIPDATA.REVISION REVISION,
+                                                 TIPDATA.COUNTY1 COUNTY1,
+                                                 TIPDATA.COUNTY2 COUNTY2,
+                                                 TIPDATA.COUNTY3 COUNTY3,
+                                                 TIPDATA.COUNTY4 COUNTY4
+                                      FROM       tip_data TIPDATA
+                                      WHERE      YEAR = ${YEAR}
+                                      AND 	 DBNUM = ${DBNUM}
+                                      AND 	 REVISION = ${REVISION}
+                         </load>
+                        <!--</statements>-->
+		</view>
+		<view>
+			<name>Revision</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+
+                              SELECT     TIPDATA.REVISION REVISION
+
+                              FROM        tip_data TIPDATA
+
+                              WHERE       YEAR = ${YEAR} AND DBNUM = ${DBNUM}
+
+                        </load>
+
+		</view>
+                <view>
+			<name>ProjectExists</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+
+                              SELECT     TIPDATA.YEAR YEAR,
+                                         TIPDATA.DBNUM DBNUM,
+                                         TIPDATA.REVISION REVISION
+                              FROM        tip_data TIPDATA
+                              WHERE       YEAR = ${YEAR} AND DBNUM = ${DBNUM} AND REVISION=${REVISION}
+                        </load>
+
+		</view>
+		<view>
+			<name>Capoutlay1</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>tip_financial</name>
+                                <name>tip_data</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                                  SELECT      TIPDATA.FUNCCAT,
+                                              TIPDATA.FHWACAT,
+                                              TIPDATA.PROJCAT,
+                                              SUM(TIPFIN.AMOUNT) DIRECT_TOTAL
+                                  FROM        tip_data TIPDATA, tip_financial TIPFIN
+
+                                  WHERE       TIPDATA.YEAR = TIPFIN.YEAR
+                                              AND TIPDATA.DBNUM = TIPFIN.DBNUM
+                                              AND TIPDATA.REVISION = TIPFIN.REVISION
+                                              AND TIPDATA.HWYCAT = 'Directly Provided Service'
+                                              AND ${FILTER}
+
+                                  GROUP BY    TIPDATA.MODECAT,
+                                              TIPDATA.FUNCCAT,
+                                              TIPDATA.FHWACAT,
+                                              TIPDATA.PROJCAT
+
+                                  ORDER BY    TIPDATA.TRANS
+                          </load>
+			<!--</statements>-->
+		</view>
+		<view>
+			<name>Capoutlay2</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>tip_financial</name>
+                                <name>tip_data</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                                  SELECT      TIPDATA.FUNCCAT,
+                                              TIPDATA.FHWACAT,
+                                              TIPDATA.PROJCAT,
+                                              SUM(TIPFIN.AMOUNT) PURCHASED_TOTAL
+                                  FROM        tip_data TIPDATA, tip_financial TIPFIN
+
+                                  WHERE       TIPDATA.YEAR = TIPFIN.YEAR
+                                              AND TIPDATA.DBNUM = TIPFIN.DBNUM
+                                              AND TIPDATA.REVISION = TIPFIN.REVISION
+                                              AND TIPDATA.HWYCAT = 'Purchased Service'
+                                              AND ${FILTER}
+
+                                  GROUP BY    TIPDATA.MODECAT,
+                                              TIPDATA.FUNCCAT,
+                                              TIPDATA.FHWACAT,
+                                              TIPDATA.PROJCAT
+
+                                  ORDER BY    TIPDATA.TRANS
+                          </load>
+			<!--</statements>-->
+		</view>
+		<view>
+			<name>Capoutlay3</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>tip_category</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                                  SELECT     TIPCAT.TRANS,
+                                             TIPCAT.FHWA,
+                                             TIPCAT.CATEGORY
+
+                                  FROM tip_category TIPCAT
+
+                                  WHERE TIPCAT.MODE='TRANSIT'
+
+                                  ORDER BY TIPCAT.TRANS
+                          </load>
+			<!--</statements>-->
+		</view>
+		<view>
+                    <name>RatioEdit</name>
+                    <transportKey>NJDOT</transportKey>
+                      <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+                    <schemas>
+                                    <name>tip_category</name>
+
+                    </schemas>
+                    <!--<statements>-->
+                            <load type="sql">
+									  			SELECT      TIPCAT.TRANS TRANS,
+															TIPCAT.MODE MODE,
+															TIPCAT.FHWA FHWA,
+															TIPCAT.Safety Safety,
+															TIPCAT.Congestion Congestion,
+															TIPCAT.Infrastructure Infrastructure,
+															TIPCAT.Reliability Reliability,
+															TIPCAT.Freight Freight,
+															TIPCAT.Sustainability Sustainability,
+															TIPCAT.Project_Delivery Project_Delivery
+
+														FROM        tip_category TIPCAT
+                                              ORDER BY    TIPCAT.MODE, TIPCAT.FHWA, TIPCAT.CATEGORY
+                            </load>
+                    <!--</statements>-->
+	    </view>
+
+		<view>
+                    <name>ScenarioEdit</name>
+                    <transportKey>NJDOT</transportKey>
+                      <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+                    <schemas>
+                                    <name>tip_category</name>
+
+                    </schemas>
+                    <!--<statements>-->
+                            <load type="sql">
+                                              SELECT      TIPCAT.TRANS TRANS,
+          TIPCAT.MODE MODE,
+          TIPCAT.FHWA FHWA,
+          TIPCAT.Fix_it_First Fix_it_First,
+          TIPCAT.Smart_Growth Smart_Growth,
+          TIPCAT.Transit_Oriented Transit_Oriented
+
+    FROM        tip_category TIPCAT
+    ORDER BY    TIPCAT.MODE, TIPCAT.FHWA
+                            </load>
+                    <!--</statements>-->
+	    </view>
+
+<!-- ============================================================= -->
+<!-- IR Views -->
+<!-- ============================================================= -->
+		<view>
+			<name>IRFunc</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+                               <name>tip_data</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                        <!-- ============================================================= -->
+                        <!-- WRITE SQL HERE-->
+                        <!-- ============================================================= -->
+                        SELECT    TIPDATA1.DBNUM DBNUM11,
+                                  TIPDATA1.YEAR,
+                                  TIPDATA1.REVISION,
+                                  TIPDATA2.DBNUM DBNUM12,
+                                  TIPDATA2.PROJ_NAME
+                        FROM 	  tip_data TIPDATA1, tip_data  TIPDATA2
+                        WHERE 	  TIPDATA1.DBNUM != TIPDATA2.DBNUM
+                                  AND (TIPDATA1.YEAR = TIPDATA2.YEAR)
+                                  AND (TIPDATA1.MODE = TIPDATA2.MODE AND (TIPDATA1.MODE IS NOT NULL AND TIPDATA1.MODE != ''))
+                                  AND (TIPDATA1.CORRIDOR = TIPDATA2.CORRIDOR AND (TIPDATA1.CORRIDOR IS NOT NULL AND TIPDATA1.CORRIDOR != ''))
+                                  AND ((TIPDATA1.ROUTE IS NOT NULL AND TIPDATA1.ROUTE != '')
+                                  AND (TIPDATA1.ROUTE = TIPDATA2.ROUTE
+                                  OR TIPDATA1.ROUTE_2 = TIPDATA2.ROUTE_2
+                                  OR TIPDATA1.ROUTE = TIPDATA2.ROUTE_2
+                                  OR TIPDATA1.ROUTE_2 = TIPDATA2.ROUTE))
+                        ORDER BY  TIPDATA1.DBNUM
+                        </load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>IRPlaMod</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+                               <name>tip_data</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                        <!-- ============================================================= -->
+                        <!-- WRITE SQL HERE-->
+                        <!-- ============================================================= -->
+                        SELECT    TIPDATA1.DBNUM DBNUM11,
+                                  TIPDATA1.REVISION,
+                                  TIPDATA1.YEAR,
+                                  TIPDATA2.DBNUM DBNUM12,
+                                  TIPDATA2.PROJ_NAME
+                        FROM 	  tip_data TIPDATA1, tip_data  TIPDATA2
+                        WHERE 	  TIPDATA1.DBNUM != TIPDATA2.DBNUM
+                                  AND (TIPDATA1.YEAR = TIPDATA2.YEAR)
+                                  AND (TIPDATA1.MODE = TIPDATA2.MODE AND (TIPDATA1.MODE IS NOT NULL AND TIPDATA1.MODE != ''))
+                                  AND (((TIPDATA1.COUNTY1 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY1 IS NOT NULL AND TIPDATA1.COUNTY1 != ''))
+                                  OR  ((TIPDATA1.COUNTY2 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY2 IS NOT NULL AND TIPDATA1.COUNTY2 != ''))
+                                  OR  ((TIPDATA1.COUNTY3 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY3 IS NOT NULL AND TIPDATA1.COUNTY3 != ''))
+                                  OR  ((TIPDATA1.COUNTY4 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY4 IS NOT NULL AND TIPDATA1.COUNTY4 != '')))
+                                  AND (((TIPDATA1.MUNC1 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC1 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC1 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC1 IS NOT NULL AND TIPDATA1.MUNC1 != ''))
+                                  OR  ((TIPDATA1.MUNC2 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC2 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC2 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC2 IS NOT NULL AND TIPDATA1.MUNC2 != ''))
+                                  OR  ((TIPDATA1.MUNC3 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC3 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC3 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC3 IS NOT NULL AND TIPDATA1.MUNC3 != ''))
+                                  OR  ((TIPDATA1.MUNC4 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC4 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC4 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC4 IS NOT NULL AND TIPDATA1.MUNC4 != '')))
+                        ORDER BY  TIPDATA1.DBNUM
+                        </load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>IRPlaSev</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+                               <name>tip_data</name>
+                               <name>tip_financial</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                        <!-- ============================================================= -->
+                        <!-- WRITE SQL HERE-->
+                        <!-- ============================================================= -->
+                        SELECT	  DISTINCT TIPDATA1.DBNUM DBNUM11,
+                                  TIPDATA1.YEAR,
+                                  TIPDATA1.REVISION,
+                                  TIPDATA2.DBNUM DBNUM12,
+                                  TIPDATA2.PROJ_NAME
+                        FROM      tip_data TIPDATA1, tip_data  TIPDATA2, tip_financial TIPFIN1, tip_financial TIPFIN2
+                        WHERE     ((TIPDATA1.DBNUM != TIPDATA2.DBNUM)
+                                  AND (TIPDATA1.YEAR = TIPDATA2.YEAR)
+                                  AND (TIPDATA1.YEAR = TIPFIN1.YEAR
+                                  AND TIPDATA1.DBNUM = TIPFIN1.DBNUM
+                                  AND TIPDATA1.REVISION = TIPFIN1.REVISION)
+                                  AND (TIPDATA2.YEAR = TIPFIN2.YEAR
+                                  AND TIPDATA2.DBNUM = TIPFIN2.DBNUM
+                                  AND TIPDATA2.REVISION = TIPFIN2.REVISION))
+                                  AND ((TIPDATA1.MODE = TIPDATA2.MODE)
+                                  AND (TIPDATA1.MODE IS NOT NULL AND TIPDATA1.MODE != ''))
+                                  AND (((TIPDATA1.COUNTY1 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY1 IS NOT NULL AND TIPDATA1.COUNTY1 != ''))
+                                  OR ((TIPDATA1.COUNTY2 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY2 IS NOT NULL AND TIPDATA1.COUNTY2 != ''))
+                                  OR ((TIPDATA1.COUNTY3 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY3 IS NOT NULL AND TIPDATA1.COUNTY3 != ''))
+                                  OR ((TIPDATA1.COUNTY4 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY4 IS NOT NULL AND TIPDATA1.COUNTY4 != '')))
+                                  AND (((TIPDATA1.MUNC1 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC1 IS NOT NULL AND TIPDATA1.MUNC1 != ''))
+                                  OR ((TIPDATA1.MUNC2 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC2 IS NOT NULL AND TIPDATA1.MUNC2 != ''))
+                                  OR ((TIPDATA1.MUNC3 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC3 IS NOT NULL AND TIPDATA1.MUNC3 != ''))
+                                  OR ((TIPDATA1.MUNC4 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC4 IS NOT NULL AND TIPDATA1.MUNC4 != '')))
+                                  AND (TIPFIN1.WORK = TIPFIN2.WORK)
+                                  AND (TIPFIN1.PLAN_BEGIN_YEAR = TIPFIN2.PLAN_BEGIN_YEAR)
+                        ORDER BY  TIPDATA1.DBNUM
+                        </load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>IRDistMod</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+                               <name>tip_data</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                        <!-- ============================================================= -->
+                        <!-- WRITE SQL HERE-->
+                        <!-- ============================================================= -->
+                        SELECT    TIPDATA1.DBNUM DBNUM11,
+		                  TIPDATA1.REVISION,
+                                  TIPDATA1.YEAR,
+                                  TIPDATA2.DBNUM DBNUM12,
+                                  TIPDATA2.PROJ_NAME
+                        FROM 	  tip_data TIPDATA1, tip_data  TIPDATA2
+                        WHERE 	  TIPDATA1.DBNUM != TIPDATA2.DBNUM
+                                  AND (TIPDATA1.YEAR = TIPDATA2.YEAR)
+                                  AND (TIPDATA1.MODE = TIPDATA2.MODE AND (TIPDATA1.MODE IS NOT NULL AND TIPDATA1.MODE != ''))
+                                  AND (((TIPDATA1.COUNTY1 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY1 IS NOT NULL AND TIPDATA1.COUNTY1 != ''))
+                                  OR  ((TIPDATA1.COUNTY2 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY2 IS NOT NULL AND TIPDATA1.COUNTY2 != ''))
+                                  OR  ((TIPDATA1.COUNTY3 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY3 IS NOT NULL AND TIPDATA1.COUNTY3 != ''))
+                                  OR  ((TIPDATA1.COUNTY4 = TIPDATA2.COUNTY1 OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY3 OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY4 IS NOT NULL AND TIPDATA1.COUNTY4 != '')))
+                                  AND (((TIPDATA1.MUNC1 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC1 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC1 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC1 IS NOT NULL AND TIPDATA1.MUNC1 != ''))
+                                  OR  ((TIPDATA1.MUNC2 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC2 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC2 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC2 IS NOT NULL AND TIPDATA1.MUNC2 != ''))
+                                  OR  ((TIPDATA1.MUNC3 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC3 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC3 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC3 IS NOT NULL AND TIPDATA1.MUNC3 != ''))
+                                  OR  ((TIPDATA1.MUNC4 = TIPDATA2.MUNC1 OR TIPDATA1.MUNC4 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC3 OR TIPDATA1.MUNC4 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC4 IS NOT NULL AND TIPDATA1.MUNC4 != '')))
+                        ORDER BY  TIPDATA1.DBNUM
+                        </load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>IRDistSev</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+                               <name>tip_data</name>
+                               <name>tip_financial</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                        <!-- ============================================================= -->
+                        <!-- WRITE SQL HERE-->
+                        <!-- ============================================================= -->
+                        SELECT	  DISTINCT TIPDATA1.DBNUM DBNUM11,
+                                  TIPDATA1.YEAR,
+                                  TIPDATA1.REVISION,
+                                  TIPDATA2.DBNUM DBNUM12,
+                                  TIPDATA2.PROJ_NAME
+                        FROM      tip_data TIPDATA1, tip_data  TIPDATA2, tip_financial TIPFIN1, tip_financial TIPFIN2
+                        WHERE     ((TIPDATA1.DBNUM != TIPDATA2.DBNUM)
+                                  AND (TIPDATA1.YEAR = TIPDATA2.YEAR)
+                                  AND (TIPDATA1.YEAR = TIPFIN1.YEAR
+                                  AND TIPDATA1.DBNUM = TIPFIN1.DBNUM
+                                  AND TIPDATA1.REVISION = TIPFIN1.REVISION)
+                                  AND (TIPDATA2.YEAR = TIPFIN2.YEAR
+                                  AND TIPDATA2.DBNUM = TIPFIN2.DBNUM
+                                  AND TIPDATA2.REVISION = TIPFIN2.REVISION))
+                                  AND ((TIPDATA1.MODE = TIPDATA2.MODE)
+                                  AND (TIPDATA1.MODE IS NOT NULL AND TIPDATA1.MODE != ''))
+                                  AND (((TIPDATA1.COUNTY1 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY1 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY1 IS NOT NULL AND TIPDATA1.COUNTY1 != ''))
+                                  OR ((TIPDATA1.COUNTY2 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY2 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY2 IS NOT NULL AND TIPDATA1.COUNTY2 != ''))
+                                  OR ((TIPDATA1.COUNTY3 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY3 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY3 IS NOT NULL AND TIPDATA1.COUNTY3 != ''))
+                                  OR ((TIPDATA1.COUNTY4 = TIPDATA2.COUNTY1
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY2
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY3
+                                  OR TIPDATA1.COUNTY4 = TIPDATA2.COUNTY4)
+                                  AND (TIPDATA1.COUNTY4 IS NOT NULL AND TIPDATA1.COUNTY4 != '')))
+                                  AND (((TIPDATA1.MUNC1 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC1 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC1 IS NOT NULL AND TIPDATA1.MUNC1 != ''))
+                                  OR ((TIPDATA1.MUNC2 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC2 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC2 IS NOT NULL AND TIPDATA1.MUNC2 != ''))
+                                  OR ((TIPDATA1.MUNC3 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC3 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC3 IS NOT NULL AND TIPDATA1.MUNC3 != ''))
+                                  OR ((TIPDATA1.MUNC4 = TIPDATA2.MUNC1
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC2
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC3
+                                  OR TIPDATA1.MUNC4 = TIPDATA2.MUNC4)
+                                  AND (TIPDATA1.MUNC4 IS NOT NULL AND TIPDATA1.MUNC4 != '')))
+                                  AND (TIPFIN1.WORK = 'CON' AND TIPFIN2.WORK = 'CON')
+                                  AND (TIPFIN1.PLAN_BEGIN_YEAR = TIPFIN2.PLAN_BEGIN_YEAR)
+                        ORDER BY  TIPDATA1.DBNUM
+                        </load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>RemDup</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+                               <name>tip_related</name>
+                        </schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                        <!-- ============================================================= -->
+                        <!-- WRITE SQL HERE-->
+                        <!-- ============================================================= -->
+                        SELECT      TIPREL.YEAR,
+                                    TIPREL.DBNUM,
+                                    TIPREL.REVISION,
+                                    TIPREL.RELATED_TO,
+                                    TIPREL.RELATIONSHIP,
+                                    TIPREL.DEGREE
+                        FROM        tip_related TIPREL,
+                                    tip_related TIPREL1
+                        WHERE       TIPREL.YEAR = TIPREL1.YEAR
+                                    AND TIPREL.DBNUM = TIPREL1.DBNUM
+                                    AND TIPREL.REVISION = TIPREL1.REVISION
+                                    AND TIPREL.RELATED_TO = TIPREL1.RELATED_TO
+                                    AND TIPREL.RELATIONSHIP = TIPREL1.RELATIONSHIP
+                                    AND TIPREL.DEGREE != TIPREL1.DEGREE
+                                    AND TIPREL.DEGREE = 'MODERATE'
+                        ORDER BY    TIPREL.DBNUM
+                        </load>
+			<!--</statements>-->
+		</view>
+<!-- ============================================================= -->
+<!-- IOModel Views -->
+<!-- ============================================================= -->
+		<view>
+			<name>ioImpacts</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>ioCntyImpacts</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+
+                              SELECT
+                                             IOIM.Host Host,
+                                             IOIM.Reporting Reporting,
+                                             IOIM.Trans Trans,
+                                             IOIM.Jag Jag,             IOIM.Jmin Jmin,
+                                             IOIM.Jconst Jconst,       IOIM.Jman Jman,
+                                             IOIM.Jtpu Jtpu,           IOIM.Jwtrade Jwtrade,
+                                             IOIM.Jrtrade Jrtrade,     IOIM.Jfire Jfire,
+                                             IOIM.Jservs Jservs,       IOIM.Jgov Jgov,
+                                             <!--Jobs end here...Industy begins below-->
+                                             IOIM.Iag Iag,             IOIM.Imin Imin,
+                                             IOIM.Iconst Iconst,       IOIM.Iman Iman,
+                                             IOIM.Itpu Itpu,           IOIM.Iwtrade Iwtrade,
+                                             IOIM.Irtrade Irtrade,     IOIM.Ifire Ifire,
+                                             IOIM.Iservs Iservs,       IOIM.Igov Igov,
+                                             <!--Industry end here...Gross Product begins below-->
+                                             IOIM.Vag Vag,             IOIM.Vmin Vmin,
+                                             IOIM.Vconst Vconst,       IOIM.Vman Vman,
+                                             IOIM.Vtpu Vtpu,           IOIM.Vwtrade Vwtrade,
+                                             IOIM.Vrtrade Vrtrade,     IOIM.Vfire Vfire,
+                                             IOIM.Vservs Vservs,       IOIM.Vgov Vgov,
+                                             <!-- Gross Product ends here....Taxes begin below-->
+                                             IOIM.Lgvtax Lgvtax,       IOIM.Sgvtax Sgvtax,
+                                             IOIM.Fgvtax Fgvtax
+
+                              FROM        ioCntyImpacts IOIM
+
+                              WHERE       Host = ${Host} and Trans = ${Trans} and Reporting = ${Reporting}
+
+                        </load>
+			<!--</statements>-->
+		</view>
+
+		<view>
+			<name>ioMultipliers</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.RowEditor</resultholder>
+			<schemas>
+				<name>ioMultipliers</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                              SELECT	     IOMU.Host Host,
+                                             IOMU.Incr_Year Incr_Year,
+
+                                             IOMU.Jag Jag,          IOMU.Jmin Jmin,
+                                             IOMU.Jconst Jconst,    IOMU.Jman Jman,
+                                             IOMU.Jtpu Jtpu,        IOMU.Jwtrade Jwtrade,
+                                             IOMU.Jrtrade Jrtrade,  IOMU.Jfire Jfire,
+                                             IOMU.Jservs Jservs,    IOMU.Jgov Jgov,
+                                             <!--Jobs end here...Industy begins below-->
+                                             IOMU.Iag Iag,          IOMU.Imin Imin,
+                                             IOMU.Iconst Iconst,    IOMU.Iman Iman,
+                                             IOMU.Itpu Itpu,        IOMU.Iwtrade Iwtrade,
+                                             IOMU.Irtrade Irtrade,  IOMU.Ifire Ifire,
+                                             IOMU.Iservs Iservs,    IOMU.Igov Igov,
+                                             <!--Industry end here...Gross Product begins below-->
+                                             IOMU.Vag Vag,          IOMU.Vmin Vmin,
+                                             IOMU.Vconst Vconst,    IOMU.Vman Vman,
+                                             IOMU.Vtpu Vtpu,        IOMU.Vwtrade Vwtrade,
+                                             IOMU.Vrtrade Vrtrade,  IOMU.Vfire Vfire,
+                                             IOMU.Vservs Vservs,    IOMU.Vgov Vgov,
+                                             <!-- Gross Product ends here....Taxes begin below-->
+                                             IOMU.Lgvtax Lgvtax,    IOMU.Sgvtax Sgvtax,
+                                             IOMU.Fgvtax Fgvtax
+                              FROM        ioMultipliers IOMU
+                              WHERE       Host = ${Host} AND Incr_Year = ${Incr_Year}
+                      </load>
+			<!--</statements>-->
+		</view>
+
+		<view>
+			<name>ioBaselines</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>ioBaselines</name>
+			</schemas>
+			<!--<statements>-->
+                        <load type="sql">
+                              SELECT         IOBL.ID ID,
+                                             IOBL.Reporting Reporting,
+                                             IOBL.Incr_Year Incr_Year,
+                                             IOBL.Jag Jag,              IOBL.Jmin Jmin,
+                                             IOBL.Jconst Jconst,        IOBL.Jman Jman,
+                                             IOBL.Jtpu Jtpu,            IOBL.Jwtrade Jwtrade,
+                                             IOBL.Jrtrade Jrtrade,      IOBL.Jfire Jfire,
+                                             IOBL.Jservs Jservs,        IOBL.Jgov Jgov,
+                                             <!--Jobs end here...Industy begins below-->
+                                             IOBL.Iag Iag,              IOBL.Imin Imin,
+                                             IOBL.Iconst Iconst,        IOBL.Iman Iman,
+                                             IOBL.Itpu Itpu,            IOBL.Iwtrade Iwtrade,
+                                             IOBL.Irtrade Irtrade,      IOBL.Ifire Ifire,
+                                             IOBL.Iservs Iservs,        IOBL.Igov Igov,
+                                             <!--Industry end here...Gross Product begins below-->
+                                             IOBL.Vag Vag,              IOBL.Vmin Vmin,
+                                             IOBL.Vconst Vconst,        IOBL.Vman Vman,
+                                             IOBL.Vtpu Vtpu,            IOBL.Vwtrade Vwtrade,
+                                             IOBL.Vrtrade Vrtrade,      IOBL.Vfire Vfire,
+                                             IOBL.Vservs Vservs,        IOBL.Vgov Vgov,
+                                             <!-- Gross Product ends here....Taxes begin below-->
+                                             IOBL.Lgvtax Lgvtax,        IOBL.Sgvtax Sgvtax,
+                                             IOBL.Fgvtax Fgvtax
+                              FROM        ioBaseline IOBL
+                              WHERE       (Incr_Year &gt;= ${Incr_Year} and Incr_Year &lt;= ${TIP_EndYear}) AND Reporting = ${Reporting}
+						</load>
+			<!--</statements>-->
+		</view>
+
+              <!--  <view>
+			<name>CountyName</name>
+			<transportKey>ALDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+	                         <name>pm_cpms_county</name>
+			</schemas>
+
+				<load type="sql">
+                    			SELECT      	PMPC.CNTY_NA CNTY_NA ,
+                                                        PMPC.CCNTY_ID  CCNTY_ID
+                    			FROM        	pm_cpms_county PMPC
+                                        ORDER BY        PMPC.CCNTY_ID ASC
+                		</load>
+
+		</view>-->
+<!-- ============================================================= -->
+<!-- Selection Screen Views -->
+<!-- ============================================================= -->
+
+                <view>
+			<name>selectTIPYear</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT      	TIPDATA.YEAR YEAR
+                                FROM        	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                ORDER BY        TIPDATA.YEAR
+                        </load>
+
+		</view>
+		<view>
+			<name>selectProjectID</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.DBNUM DBNUM,
+                                                MAX(TIPDATA.REVISION) REVISION
+                                FROM     	tip_data TIPDATA
+                                WHERE       	PROJECT_TYPE='STIP' AND ${AGENCY}
+                                GROUP BY        TIPDATA.DBNUM
+                                ORDER BY        TIPDATA.DBNUM
+                        </load>
+
+		</view>
+
+		<view>
+			<name>selectPROGMANAG</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                  SELECT   	TIPDATA.PROGMANAG PROGMANAG
+                                  FROM     	tip_data TIPDATA
+                                  WHERE       	PROJECT_TYPE='STIP' AND ${AGENCY}
+                                ORDER BY        TIPDATA.PROGMANAG
+                        </load>
+
+		</view>
+
+		<view>
+			<name>selectScoreLogin</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrSystem</name>
+			</schemas>
+
+                        <load type="sql">
+               			        SELECT DISTINCT SCRSYS.LoginID LoginID
+                    			FROM     	scrSystem SCRSYS
+                    			ORDER BY LoginID
+                        </load>
+
+		</view>
+                <view>
+			<name>selectProjectID2</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.DBNUM2 DBNUM2,
+                                                MAX(TIPDATA.REVISION) REVISION
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                GROUP BY        TIPDATA.DBNUM2
+                                ORDER BY        TIPDATA.DBNUM2
+                        </load>
+
+		</view>
+                <view>
+			<name>selectProjectID3</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.DBNUM3 DBNUM3,
+                                                MAX(TIPDATA.REVISION) REVISION
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                GROUP BY        TIPDATA.DBNUM3
+                                ORDER BY        TIPDATA.DBNUM3
+                        </load>
+
+		</view>
+                <view>
+			<name>selectProjectName</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                               <!-- SELECT   	TIPDATA.PROJ_NAME PROJ_NAME,
+                                                MAX(TIPDATA.REVISION) REVISION
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY} AND PROJECT_TYPE='STIP'
+                                GROUP BY        TIPDATA.DBNUM, TIPDATA.PROJ_NAME
+                                ORDER BY        TIPDATA.PROJ_NAME -->
+								
+								SELECT   	TIPDATA.PROJ_NAME PROJ_NAME
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY} AND PROJECT_TYPE='STIP'
+                                GROUP BY        TIPDATA.DBNUM, TIPDATA.PROJ_NAME
+                                ORDER BY        TIPDATA.PROJ_NAME
+								
+								
+                        </load>
+
+		</view>
+		<view>		
+			<name>selectCounty</name>		
+			<transportKey>NJDOT</transportKey>		
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>		
+			<schemas>		
+				<name>tip_data</name>		
+			</schemas>		
+                        <load type="sql">		
+                                SELECT   	TIPDATA.COUNTY COUNTY		
+                                FROM     	tip_data TIPDATA		
+                                WHERE       	${AGENCY}		
+                                ORDER BY        TIPDATA.COUNTY		
+                        </load>		
+		</view>
+		<view>		
+			<name>selectMunicipality</name>		
+			<transportKey>NJDOT</transportKey>		
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>		
+			<schemas>		
+				<name>tip_data</name>		
+			</schemas>		
+                        <load type="sql">		
+                                SELECT   	TIPDATA.MUNICIPALITY MUNICIPALITY		
+                                FROM     	tip_data TIPDATA		
+                                WHERE       	${AGENCY} AND PROJECT_TYPE='STIP'		
+                                ORDER BY        TIPDATA.MUNICIPALITY		
+                        </load>		
+		</view>
+		<view>
+					<name>selectProjectCascade</name>
+					<transportKey>NJDOT</transportKey>
+		                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+					<schemas>
+						<name>tip_data</name>
+					</schemas>
+
+		                        <load type="sql">
+		                                SELECT   	TIPDATA.PROJ_NAME + '||' +  TIPDATA.PROGMANAG AS PROJECTCASCADE
+										                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+		                        </load>
+
+		</view>
+                <view>
+			<name>selectLeadAgency</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.LEAD_AGENCY LEAD_AGENCY,
+                                                MAX(TIPDATA.REVISION) REVISION
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                GROUP BY        TIPDATA.DBNUM, TIPDATA.LEAD_AGENCY
+                                ORDER BY        TIPDATA.LEAD_AGENCY
+                        </load>
+
+		</view>
+                <view>
+			<name>selectContact</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.PROJ_CONTACT PROJ_CONTACT,
+                                                MAX(TIPDATA.REVISION) REVISION
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                GROUP BY        TIPDATA.DBNUM, TIPDATA.PROJ_CONTACT
+                                ORDER BY        TIPDATA.PROJ_CONTACT
+                        </load>
+
+		</view>
+                <view>
+			<name>selectFundingType</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_financial</name>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPFIN.FUNDING_TYPE FUNDING_TYPE,
+                                                MAX(TIPFIN.REVISION) REVISION
+                                FROM     	tip_financial TIPFIN, tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                GROUP BY        TIPFIN.DBNUM, TIPFIN.FUNDING_TYPE
+                                ORDER BY        TIPFIN.FUNDING_TYPE
+                        </load>
+
+		</view>
+                <view>
+			<name>selectFundingSource</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_financial</name>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPFIN.SOURCE SOURCE,
+                                                MAX(TIPFIN.REVISION) REVISION
+                                FROM     	tip_financial TIPFIN, tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                GROUP BY        TIPFIN.DBNUM, TIPFIN.SOURCE
+                                ORDER BY        TIPFIN.SOURCE
+                        </load>
+
+		</view>
+                <view>
+			<name>selectCounty1</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.COUNTY1 COUNTY1
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                ORDER BY        TIPDATA.COUNTY1
+                        </load>
+
+		</view>
+
+                <view>
+			<name>selectCounty2</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.COUNTY2 COUNTY2
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                ORDER BY        TIPDATA.COUNTY2
+                        </load>
+
+		</view>
+                <view>
+			<name>selectCounty3</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.COUNTY3 COUNTY3
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                ORDER BY        TIPDATA.COUNTY3
+                        </load>
+
+		</view>
+                <view>
+			<name>selectCounty4</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.COUNTY4 COUNTY4
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+                                ORDER BY        TIPDATA.COUNTY4
+                        </load>
+
+		</view>
+
+                <view>
+			<name>selectLegDist1</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.LEGDIST1 LEGDIST1
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.LEGDIST1
+                        </load>
+
+		</view>
+                <view>
+			<name>selectLegDist2</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.LEGDIST2 LEGDIST2
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.LEGDIST2
+                        </load>
+
+		</view>
+                <view>
+			<name>selectLegDist3</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.LEGDIST3 LEGDIST3
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.LEGDIST3
+                        </load>
+
+		</view>
+                <view>
+			<name>selectLegDist4</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.LEGDIST4 LEGDIST4
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.LEGDIST4
+                        </load>
+
+		</view>
+
+		<view>
+			<name>selectSponsor</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.SPONSOR SPONSOR
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.SPONSOR
+                        </load>
+
+		</view>
+
+                <view>
+			<name>selectMunc1</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.MUNC1 MUNC1
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY} AND PROJECT_TYPE='STIP'
+
+                                ORDER BY        TIPDATA.MUNC1
+                        </load>
+
+		</view>
+		<view>
+			<name>selectMPO</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.MPO MPO
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY} AND PROJECT_TYPE='STIP'
+
+                                ORDER BY        TIPDATA.MUNC1
+                        </load>
+
+		</view>
+                <view>
+			<name>selectMunc2</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.MUNC2 MUNC2
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.MUNC2
+                        </load>
+
+		</view>
+                <view>
+			<name>selectMunc3</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.MUNC3 MUNC3
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.MUNC3
+                        </load>
+
+		</view>
+                <view>
+			<name>selectMunc4</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.MUNC4 MUNC4
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.MUNC4
+                        </load>
+
+		</view>
+                <view>
+			<name>selectCorridor</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.CORRIDOR CORRIDOR
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.CORRIDOR
+                        </load>
+
+		</view>
+                <view>
+			<name>selectRoute</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.ROUTE ROUTE
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY} AND PROJECT_TYPE='STIP'
+
+                                ORDER BY        TIPDATA.ROUTE
+                        </load>
+
+		</view>
+                <view>
+			<name>selectSystem</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.MODECAT MODECAT
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.MODECAT
+                        </load>
+
+		</view>
+                <view>
+			<name>selectHWYCAT</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.HWYCAT HWYCAT
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.HWYCAT
+                        </load>
+
+		</view>
+                <view>
+			<name>selectFUNCCAT</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.FUNCCAT FUNCCAT
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.FUNCCAT
+                        </load>
+
+		</view>
+                <view>
+			<name>selectFHWACAT</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.FHWACAT FHWACAT
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.FHWACAT
+                        </load>
+
+		</view>
+                <view>
+			<name>selectPROJCAT</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.PROJCAT PROJCAT
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.PROJCAT
+                        </load>
+
+		</view>
+                <view>
+			<name>selectUserCat</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.MPO_CAT MPO_CAT
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.MPO_CAT
+                        </load>
+
+		</view>
+                <view>
+			<name>selectTIPStatus</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_data</name>
+			</schemas>
+
+                        <load type="sql">
+                                SELECT   	TIPDATA.PROJECT_TYPE PROJECT_TYPE
+                                FROM     	tip_data TIPDATA
+                                WHERE       	${AGENCY}
+
+                                ORDER BY        TIPDATA.PROJECT_TYPE
+                        </load>
+
+		</view>
+
+<!-- ============================================================= -->
+<!-- AUDIT VIEWS -->
+<!-- ============================================================= -->
+                <view>
+			<name>Audit</name>
+			<transportKey>AUDIT</transportKey>
+			<resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>telus_audit</name>
+			</schemas>
+                        <!--
+			<statements>
+				<insert type="sql">
+                    			INSERT INTP audit ($FIELDLIST) VALUES ($VALUELIST)
+                		</insert>
+			</statements>
+                        -->
+                        <load type="sql">
+                                SELECT        TA.AUDITID AUDITID,
+                                              TA.TIMESTAMP TIMESTAMP,
+                                              TA.LOGINID LOGINID,
+                                              TA.COMMENT COMMENT,
+                                              TA.TABLENAME TABLENAME,
+                                              TA.RECORDID RECORDID,
+                                              TA.YEAR YEAR,
+                                              TA.DBNUM DBNUM,
+                                              TA.REVISION REVISION,
+                                              TA.PROJECTID PROJECTID,
+                                              TA.TRANSPORTTYPE TRANSPORTTYPE,
+                                              TA.OLDVALUETEXT OLDVALUETEXT
+                                FROM          audit TA
+                                WHERE         TA.DBNUM =  ${DBNUM}
+                                AND           TA.YEAR = ${YEAR}
+                                AND           TA.REVISION = ${REVISION} <!--OR recordid = "0"-->
+
+                        </load>
+		</view>
+		<view>
+					<name>visitorLog</name>
+					<transportKey>VISIT</transportKey>
+					<resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+					<schemas>
+						<name>visitors</name>
+					</schemas>
+		                        <load type="sql">
+		                                SELECT        VISIT.NAME NAME,
+		                                              VISIT.AGENCY AGENCY,
+		                                              VISIT.EMAIL EMAIL,
+		                                              VISIT.TELEPHONE TELEPHONE,
+		                                              VISIT.TIME TIME
+		                                FROM          visitors VISIT
+
+		                        </load>
+		</view>
+<!-- ============================================================= -->
+<!-- Scoring System Views -->
+<!-- ============================================================= -->
+		<view>
+			<name>allSystems</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrSystem</name>
+			</schemas>
+			<!--<statements> To load all scoring systems -->
+				<load type="sql">
+               			        SELECT   	SCRSYS.SystemID SystemID,
+                                                        SCRSYS.SystemName SystemName,
+                                                        SCRSYS.Description Description,
+                                                        SCRSYS.MaxScore MaxScore,
+                                                        SCRSYS.Type Type,
+                                                        SCRSYS.IsActive IsActive,
+                                                        SCRSYS.AgencyAlias AgencyAlias,
+                                                        SCRSYS.LoginID LoginID,
+                                                        SCRSYS.TimeStamp TimeStamp
+                    			FROM     	scrSystem SCRSYS where IsActive = 1
+                    			ORDER BY SystemID
+                		</load>
+			<!--</statements>-->
+		</view>
+		<view>
+			<name>allDefaultSystems</name>
+
+			<schemas>
+				<name>allDefaultSystems</name>
+			</schemas>
+				<load type="sql">
+               			        SELECT   	SCRSYS.SystemID SystemID,
+                                                        SCRSYS.SystemName SystemName,
+                                                        SCRSYS.Description Description,
+                                                        SCRSYS.MaxScore MaxScore,
+                                                        SCRSYS.Type Type,
+                                                        SCRSYS.IsActive IsActive,
+                                                        SCRSYS.AgencyAlias AgencyAlias,
+                                                        SCRSYS.LoginID LoginID,
+                                                        SCRSYS.TimeStamp TimeStamp
+                    			FROM     	scrSystem SCRSYS where IsActive = 2
+                    			ORDER BY SystemID
+                </load>
+
+		</view>
+		<view>
+			<name>allScoreSystems</name>
+
+			<schemas>
+				<name>allScoreSystems</name>
+			</schemas>
+				<load type="sql">
+               			        SELECT   	SCRSYS.SystemID SystemID,
+                                                        SCRSYS.SystemName SystemName,
+                                                        SCRSYS.Description Description,
+                                                        SCRSYS.MaxScore MaxScore,
+                                                        SCRSYS.Type Type,
+                                                        SCRSYS.IsActive IsActive,
+                                                        SCRSYS.AgencyAlias AgencyAlias,
+                                                        SCRSYS.LoginID LoginID,
+                                                        SCRSYS.TimeStamp TimeStamp
+                    			FROM     	scrSystem SCRSYS
+                    			ORDER BY SystemID
+                </load>
+
+		</view>
+		<view>
+			<name>allCategories</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrCategory</name>
+			</schemas>
+			<!--<statements>To load all categories -->
+				<load type="sql">
+                    			SELECT      	SCRCAT.SystemID SystemID,
+                                                        SCRCAT.Cat_ID Cat_ID,
+                                                        SCRCAT.Cat_Name Cat_Name,
+                                                        SCRCAT.Cat_Description Cat_Description,
+                                                        SCRCAT.DispText DispText,
+                                                        SCRCAT.DispPosition DispPosition,
+                                                        SCRCAT.Weight Weight,
+                                                        SCRCAT.IsActive IsActive
+                    			FROM        	scrCategory SCRCAT
+                		</load>
+			<!--</statements>-->
+		</view>
+
+		<view>
+			<name>allFactors</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrFactor</name>
+			</schemas> <!--To load all factors -->
+			<!--<statements>-->
+				<load type="sql">
+                    			SELECT
+                                                        SCRFACTOR.SystemID SystemID,
+                                                        SCRFACTOR.Cat_ID Cat_ID,
+                                                        SCRFACTOR.Factor_ID Factor_ID,
+                                                        SCRFACTOR.Factor_Description Factor_Description,
+                                                        SCRFACTOR.DispText DispText,
+                                                        SCRFACTOR.DispPosition DispPosition,
+                                                        SCRFACTOR.Weight Weight,
+                                                        SCRFACTOR.IsActive IsActive
+                    			FROM        	scrFactor SCRFACTOR
+                		</load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>selectProjectScore</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrProject</name>
+                                <!--<name>scrFactor</name>
+                                <name>scrCategorySimple</name>-->
+			</schemas> <!--To load Project Scores -->
+			<!--<statements>-->
+				<load type="sql">
+                    			SELECT
+                                                        SCRPROJECT.YEAR YEAR,
+                                                        SCRPROJECT.DBNUM DBNUM,
+                                                        SCRPROJECT.REVISION REVISION,
+                                                        SCRPROJECT.SystemID SystemID,
+                                                        SCRPROJECT.Cat_ID Cat_ID,
+                                                        SCRPROJECT.Factor_ID Factor_ID,
+                                                        <!--SCRFACTOR.Factor_Description Factor_Description,
+                                                        SCRFACTOR.Weight Weight,-->
+                                                        SCRPROJECT.Score Score <!--,
+                                                        SCRCATEGORYSIMPLE.Cat_Name Cat_Description,
+                                                        SCRCATEGORYSIMPLE.Cat_Description Cat_Description-->
+                    			FROM        			scrProject SCRPROJECT <!--INNER JOIN scrFactor SCRFACTOR
+                                        ON              SCRPROJECT.SystemID = SCRFACTOR.SystemID AND
+                                                        SCRPROJECT.Cat_ID = SCRFACTOR.Cat_ID AND
+                                                        SCRPROJECT.Factor_ID=SCRFACTOR.Factor_ID
+                                                        INNER JOIN scrCategory SCRCATEGORYSIMPLE
+                                        ON              SCRFACTOR.Cat_ID = SCRCATEGORYSIMPLE.Cat_ID AND
+                                                        SCRFACTOR.SystemID = SCRCATEGORYSIMPLE.SystemID-->
+                                        WHERE           (SCRPROJECT.YEAR = ${YEAR} AND
+                                                        SCRPROJECT.DBNUM = ${DBNUM} AND
+                                                        SCRPROJECT.REVISION = ${REVISION})
+                                                        <!--OR SCRPROJECT.DBNUM = 0AND SCRPROJECT.SystemID = ${SystemID}-->
+                		</load>
+ 			<!--</statements>-->
+		</view>
+                <view>
+			<name>selectProjectSystems</name>
+			<transportKey>MODELS</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrProject</name>
+                                <name>scrSystem</name>
+			</schemas> <!--To load all factors -->
+			<!--<statements>-->
+				<load type="sql">
+                    			SELECT          DISTINCT SCRPROJECT.YEAR YEAR,
+                                                        SCRPROJECT.DBNUM DBNUM,
+                                                        SCRPROJECT.REVISION REVISION,
+                                                        SCRPROJECT.SystemID SystemID,
+                                                        SCRSYS.SystemName SystemName,
+                                                        SCRSYS.LoginID LoginID,
+                                                        SCRSYS.TimeStamp TimeStamp
+                                    	FROM        	scrProject SCRPROJECT,  scrSystem SCRSYS
+                                        WHERE           SCRPROJECT.SystemID=SCRSYS.SystemID AND
+                                                        SCRPROJECT.YEAR = ${YEAR} AND
+                                                        SCRPROJECT.DBNUM = ${DBNUM} AND
+                                                        SCRPROJECT.REVISION = ${REVISION}
+                		</load>
+			<!--</statements>-->
+		</view>
+		<view>
+			<name>allFactorsBySysId</name>
+			<transportKey>MODELS</transportKey>
+                <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrSystemUnq</name>
+				<name>scrCategoryUnq</name>
+				<name>scrFactorUnq</name>
+			</schemas>
+				<load type="sql">
+                    			SELECT  SCRCAT_UNQ.SystemID SystemID,
+						        SCRCAT_UNQ.Cat_ID Cat_ID,
+						        SCRCAT_UNQ.Cat_Name Cat_Name,
+						        SCRCAT_UNQ.Cat_Description Cat_Description,
+						        SCRCAT_UNQ.DispText Cat_DispText,
+						        SCRCAT_UNQ.DispPosition Cat_DispPosition,
+						        SCRCAT_UNQ.Weight Cat_Weight,
+						        SCRCAT_UNQ.IsActive Cat_IsActive,
+						        SCRFACTOR_UNQ.SystemID SystemID,
+						        SCRFACTOR_UNQ.Cat_ID Cat_ID,
+						        SCRFACTOR_UNQ.Factor_ID Factor_ID,
+						        SCRFACTOR_UNQ.Factor_Description Factor_Description,
+						        SCRFACTOR_UNQ.DispText Factor_DispText,
+						        SCRFACTOR_UNQ.DispPosition Factor_DispPosition,
+						        SCRFACTOR_UNQ.Weight Factor_Weight,
+						        SCRFACTOR_UNQ.IsActive Factor_IsActive,
+						        SCRSYS_UNQ.SystemID SystemID,
+						        SCRSYS_UNQ.SystemName SystemName,
+						        SCRSYS_UNQ.Description Description,
+						        SCRSYS_UNQ.MaxScore MaxScore,
+						        SCRSYS_UNQ.Type Type,
+						        SCRSYS_UNQ.IsActive SystemIsActive,
+						        SCRSYS_UNQ.AgencyAlias AgencyAlias,
+						        SCRSYS_UNQ.LoginID LoginID,
+						        SCRSYS_UNQ.TimeStamp TimeStamp
+								FROM scrCategory SCRCAT_UNQ, scrFactor SCRFACTOR_UNQ, scrSystem SCRSYS_UNQ 
+								WHERE SCRCAT_UNQ.SystemID = SCRSYS_UNQ.SystemID 
+								and SCRFACTOR_UNQ.SystemID = SCRCAT_UNQ.SystemID 
+								and SCRFACTOR_UNQ.Cat_ID = SCRCAT_UNQ.Cat_ID 
+								and SCRSYS_UNQ.SystemID = ${SystemID}			
+                		</load>
+                		<!-- <load type="sql">
+                    			SELECT  SCRCAT.SystemID SystemID,
+						        SCRCAT.Cat_ID Cat_ID,
+						        SCRCAT.Cat_Name Cat_Name,
+						        SCRCAT.Cat_Description Cat_Description,
+						        SCRCAT.DispText DispText,
+						        SCRCAT.DispPosition DispPosition,
+						        SCRCAT.Weight Weight,
+						        SCRCAT.IsActive IsActive
+								FROM scrCategory SCRCAT			
+                		</load>  -->
+			</view>
+<!-- ============================================================= -->
+<!-- TAG-LIB Views -->
+<!-- ============================================================= -->
+		<view>
+			<name>IRYear</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>tip_related</name>
+			</schemas>
+				<load type="sql">
+               			        SELECT   	DISTINCT TIPREL.YEAR YEAR
+                    			FROM     	tip_related TIPREL
+                		</load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>PAYear</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>tip_related</name>
+			</schemas>
+				<load type="sql">
+               			        SELECT   	DISTINCT TIPDATA.YEAR YEAR
+                    			FROM     	tip_data TIPDATA
+                		</load>
+			<!--</statements>-->
+		</view>
+                <view>
+			<name>BudgetYear</name>
+			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder>
+			<schemas>
+				<name>tip_related</name>
+			</schemas>
+				<load type="sql">
+               			        SELECT   	DISTINCT TIPBUDGET.YEAR YEAR
+                    			FROM     	tip_budget TIPBUDGET
+                		</load>
+			<!--</statements>-->
+		</view>
+
+
+<!-- ============================================================= -->
+<!-- Comments Views -->
+<!-- ============================================================= -->
+		<view>
+			<name>comments</name>
+			<transportKey>GUEST</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>tip_comments</name>
+			</schemas>
+				<load type="sql">
+               			        SELECT   	COMMENTS.DBNUM DBNUM,
+                                               		COMMENTS.YEAR YEAR,
+                                                        COMMENTS.REVISION REVISION,
+                                                        COMMENTS.NAME NAME,
+                                                        COMMENTS.TIMESTAMP TIMESTAMP,
+                                                        COMMENTS.LOCATION LOCATION,
+                                                        COMMENTS.COMMENT COMMENT
+                    			FROM     	tip_comments COMMENTS
+                                        WHERE 		COMMENTS.DBNUM=${DBNUM} and COMMENTS.YEAR=${YEAR}
+                                        and		COMMENTS.REVISION=${REVISION}
+                                        ORDER BY	COMMENTS.TIMESTAMP DESC
+                		</load>
+		<!--	</statements>  -->
+		</view>
+<!-- ============================================================= -->
+<!-- New Views added by Jagpreet-->
+<!-- ============================================================= -->
+		<view>
+			<name>CategoryCountbySystemID</name>
+<!-- 			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder> -->
+			<schemas>
+				<name>tip_related</name>
+			</schemas>
+				<load type="sql">
+                    			SELECT      	count(*)
+                    			FROM        	scrCategory SCRCAT
+                                Where SCRCAT.SystemID = $(SystemID)
+                		</load>
+			<!--</statements>-->
+		</view>
+		<view>
+			<name>allUserNames</name>
+<!-- 			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder> -->
+			<schemas>
+				<name>allUserNames</name>
+			</schemas>
+				<load type="sql">
+					select principle.loginid,fullname,value from principle,profiletable where isgroup = 0 and name = 'agencyAlias' and principle.loginid = profiletable.loginid order by principle.loginid
+                </load>
+			<!--</statements>-->
+		</view>
+		
+		<view>
+			<name>userdetails</name>
+<!-- 			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder> -->
+			<schemas>
+				<name>userdetails</name>
+			</schemas>
+				<load type="sql">
+					select principle.loginid,fullname,value,password from principle,profiletable where isgroup = 0 and principle.loginid = profiletable.loginid and profiletable.loginid =
+                </load>
+			<!--</statements>-->
+		</view>
+		
+		<view>
+			<name>allGroupNames</name>
+<!-- 			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder> -->
+			<schemas>
+				<name>allGroupNames</name>
+			</schemas>
+				<load type="sql">
+					select distinct loginid from roleloginmap
+                </load>
+			<!--</statements>-->
+		</view>
+		
+		<view>
+			<name>selectMaximumCriteria</name>
+<!-- 			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder> -->
+			<schemas>
+				<name>selectMaximumCriteria</name>
+			</schemas>
+				<load type="sql">
+					select max(OVERWEIGHT),max(LT_PERC_STIP),max(SEVERITY),max(NATIONAL_HIGHWAY_FREIGHT_NETWORK),max(INTERMODAL),max(NJ_ACCESS),max(NHS),max(TTTR),max(CR_LT) from scrsegment
+                </load>
+			<!--</statements>-->
+		</view>
+		
+		<view>
+			<name>validateUsername</name>
+<!-- 			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder> -->
+			<schemas>
+				<name>validateUsername</name>
+			</schemas>
+				<load type="sql">
+					select loginid from principle where loginid = 
+                </load>
+			<!--</statements>-->
+		</view>
+		
+		<view>
+			<name>selectfordeleteconfirm</name>
+<!-- 			<transportKey>NJDOT</transportKey>
+                        <resultholder>edu.njit.telus.tip.data.TableViewer</resultholder> -->
+			<schemas>
+				<name>selectfordeleteconfirm</name>
+			</schemas>
+				<load type="sql">
+					select PT.value from principle P,profiletable PT where P.loginid=PT.loginid and (PT.name='emailFrom' or PT.name = 'userGroup' or PT.name='agencyAlias') and P.loginid = 
+                </load>
+			<!--</statements>-->
+		</view>
+		
+		<view>
+			<name>getOverWeightRatio</name>
+
+			<schemas>
+				<name>getOverWeightRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'Overweight Truck Permits' order by Fix_it_First 
+                </load>
+
+		</view>
+		
+				<view>
+			<name>getLargeTruckCrashRateRatio</name>
+
+			<schemas>
+				<name>getLargeTruckCrashRateRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'Large Truck Crash Rate' order by Fix_it_First
+                </load>
+
+		</view>
+		
+		<view>
+			<name>getLargeTruckSeverityRateRatio</name>
+
+			<schemas>
+				<name>getLargeTruckSeverityRateRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'Large Truck Severity Rate' order by Fix_it_First
+                </load>
+
+		</view>
+		
+		<view>
+			<name>getLargeTruckVolumePercentRatio</name>
+
+			<schemas>
+				<name>getLargeTruckVolumePercentRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'Percentage of Large Truck Volume' order by Fix_it_First
+                </load>
+
+		</view>		
+		
+		<view>
+			<name>getTTIRatio</name>
+
+			<schemas>
+				<name>getTTIRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'Travel Time Indicator' order by Fix_it_First
+                </load>
+
+		</view>
+		
+		<view>
+			<name>getNJAccessRatio</name>
+
+			<schemas>
+				<name>getNJAccessRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'New Jersey Access Network' order by Fix_it_First
+                </load>
+
+		</view>
+		
+		<view>
+			<name>getNationalHighwayNetworkRatio</name>
+
+			<schemas>
+				<name>getNationalHighwayNetworkRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'National Highway Network' order by Fix_it_First
+                </load>
+
+		</view>		
+		
+		<view>
+			<name>getIntermodalRatio</name>
+
+			<schemas>
+				<name>getIntermodalRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'Intermodal Connector' order by Fix_it_First
+                </load>
+
+		</view>
+		
+		<view>
+			<name>getBlueRouteRatio</name>
+
+			<schemas>
+				<name>getBlueRouteRatio</name>
+			</schemas>
+				<load type="sql">
+					select Fix_it_First, Smart_Growth, Default_percent from tip_category where Mode = 'Blue Route' order by Fix_it_First
+                </load>
+
+		</view>
+		<view>
+			<name>score_management_query</name>
+			<transportKey>MODELS</transportKey>
+                <resultholder>edu.njit.telus.tip.data.TableEditor</resultholder>
+			<schemas>
+				<name>scrSystemUnq</name>
+				<name>scrCategoryUnq</name>
+				<name>scrFactorUnq</name>
+			</schemas>
+				<load type="sql">
+								SELECT  SCRCAT_UNQ.SystemID SystemID,
+						        SCRCAT_UNQ.Cat_ID Cat_ID,
+						        SCRCAT_UNQ.Cat_Name Cat_Name,
+						        SCRCAT_UNQ.Cat_Description Cat_Description,
+						        SCRCAT_UNQ.Weight Cat_Weight,
+						        SCRCAT_UNQ.IsActive Cat_IsActive,
+						        SCRFACTOR_UNQ.SystemID SystemID,
+						        SCRFACTOR_UNQ.Cat_ID Cat_ID,
+						        SCRFACTOR_UNQ.Factor_ID Factor_ID,
+						        SCRFACTOR_UNQ.Factor_Description Factor_Description,
+						        SCRFACTOR_UNQ.Weight Factor_Weight,
+						        SCRSYS_UNQ.SystemID SystemID
+								FROM scrCategory SCRCAT_UNQ, scrFactor SCRFACTOR_UNQ, scrSystem SCRSYS_UNQ 
+								WHERE SCRCAT_UNQ.SystemID = SCRSYS_UNQ.SystemID 
+								and SCRFACTOR_UNQ.SystemID = SCRCAT_UNQ.SystemID 
+								and SCRFACTOR_UNQ.Cat_ID = SCRCAT_UNQ.Cat_ID 
+								and SCRSYS_UNQ.SystemID = ${SystemID} order by SCRCAT_UNQ.Cat_ID			
+                </load>
+			</view>
+	</views>
+<!-- ============================================================= -->
+<!-- END OF VIEWS -->
+<!-- ============================================================= -->
+
+<!-- ============================================================= -->
+<!-- STATEMENTS -->
+<!-- ============================================================= -->
+<!--
+        <statements>
+                <statementSet>
+                    <id>default-email</id>
+                    <update type="email">
+                        Please update this record:
+                    </update>
+                    <insert type="email">
+                        Please insert this record:
+                    </insert>
+                    <delete type="email">
+                        Please delete this record:
+                    </delete>
+                </statementSet>
+                <statementSet>
+                    <id>default-sql</id>
+                    <update type="sql">
+                    </update>
+                    <insert type="sql">
+                    </insert>
+                    <delete type="sql">
+                    </delete>
+                </statementSet>
+        </statements>
+-->
+
+<!-- ============================================================= -->
+<!-- END OF DBCONFIG -->
+<!-- ============================================================= -->
+</dbconfig>
+
+

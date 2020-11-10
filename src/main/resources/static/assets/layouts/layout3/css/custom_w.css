@@ -1,0 +1,143 @@
+/* here you can put your own css to customize and override the theme */
+/* display background image */
+body.page-md {
+    _background: url('/FMS/assets/layouts/layout3/img/497865200.png')  no-repeat top center fixed;
+	background: url('/FMS/assets/layouts/layout3/img/530190992.png')  no-repeat top center fixed;
+	-webkit-background-size: cover;
+  	-moz-background-size: cover;
+  	-o-background-size: cover;
+  	background-size: cover;
+}
+.page-header {
+	background: transparent;
+}
+.page-wrapper .page-wrapper-middle {
+    background: transparent;
+}
+.page-head {
+    background:  transparent;
+}
+
+.page-header .page-header-top .page-logo .logo-default {
+    margin: 25px 0 0;
+}
+
+
+.page-header .page-header-top .page-logo {
+    float: left;
+    display: block;
+    width: 340px;
+    height: 75px;
+}
+
+
+
+
+
+
+
+.page-head .page-title > h1 {
+    color: #ffffff;
+}
+
+
+li [class*=" fa-"]{
+	margin-right: 6px;
+}
+.page-header .page-header-top .top-menu .navbar-nav > li:hover {
+    background-color: transparent;
+}
+.page-header .page-header-top .top-menu .navbar-nav > li:focus {
+    background-color: transparent;
+}
+
+.page-header .page-header-top .top-menu .navbar-nav > li > i:hover {
+    color: #ffffff;
+}
+.page-header .page-header-top .top-menu .navbar-nav > li > i:focus {
+    color: #ffffff;
+}
+.nav > li > a:focus, .nav > li > a:hover {
+    text-decoration: none;
+    background-color: transparent;
+	color: #ffffff;
+}
+.navbar-nav > li > a {
+	padding-top: 15px;
+	color: #c1ccd1;
+	font-size: 1.15em;
+	font-weight: bold;
+}
+.navbar-nav > li > a:hover, .navbar-nav > li > a:focus {
+	text-decoration: none;
+    background-color: transparent;
+	color: #ffffff;
+}
+
+
+@media screen and (max-width:847px){
+	.page-header .top-menu{
+		_background-color: transparent;
+	} 
+	.page-header .page-header-top .top-menu {
+    _margin-top: -40px;
+		
+}
+
+}
+
+.page-header .page-header-menu {
+	height: 0px;
+}
+
+@media screen and (min-width: 992px){
+	.page-head .page-title {
+    	margin-top: -40px;
+	}
+}
+
+@media screen and (max-width: 480px){
+.page-header .top-menu, .page-header .top-menu .navbar-nav > li.dropdown-user .dropdown-toggle, .page-header-fixed-mobile .page-header .top-menu {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+	}
+
+
+
+
+
+.tile-bt-extralarge img {
+    margin: 0 auto 0 auto;
+    padding-bottom: 0px;
+    height: 48px;
+    width: 48px;
+    position: relative;
+    display: block;
+}
+
+
+
+.portlet.light {
+    padding: 12px 20px 15px;
+    background-color: rgba(255, 255, 255, 0.8);
+}
+
+	.well .control-label {
+		padding-top: 0px;}
+
+.btn:not(.md-skip):not(.bs-select-all):not(.bs-deselect-all) {
+	margin-bottom: 5px;}
+
+a {
+	color: #990000;
+}
+
+a:hover {
+    cursor: pointer;
+    color: #ff0000;
+}
+
+a:focus, a:hover {
+    color: #ff0000;
+    text-decoration: underline;
+}

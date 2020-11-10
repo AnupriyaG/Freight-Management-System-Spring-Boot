@@ -1,0 +1,349 @@
+html {
+	
+   height:100%;
+   margin:0;padding:0;}
+
+body {
+   *background: #6bb130 url('/telus/images/bg_home_greenfade.png') repeat-x top;
+   *background: url('/telus/images/bg1.png');
+   *background: url('/telus/images/bg2.png');
+   *background: url('/telus/images/bg3.png');
+   *background: url('/telus/images/bg4.png');
+    *background: url('/telus/images/bg6.png');
+	   background: url('/telus/images/bg5.png');
+
+
+   text-align:center;
+   font-size:11px;
+   line-height:14px;
+   font-family:Trebuchet MS,arial,verdana;
+   margin:0;padding:0;
+   height:100%}
+
+
+#pageBar {
+	text-align:center;
+	/*background: url('/telus/images/bgTop1.png') repeat-x top;
+	*background: url('/telus/images/bgTop2.png') repeat-x top;
+	*background: url('/telus/images/bgTop3.png') repeat-x top;
+	*background: url('/telus/images/bgTop6.png') repeat-x top;
+	*background: url('/telus/images/bgTop8.png') no-repeat top;
+	*background: url('/telus/images/bgTop12.png');*/
+	background: url('/telus/images/bgTop11.png') repeat-x;
+
+}
+
+#pageTop {
+	width:1024px;}
+
+#pageTitle {
+	width:323px;
+	float:left;}
+	
+#pageNev {
+	text-align:right;
+	padding-right: 0px;}
+
+p {
+   margin-top:1em;
+   margin-bottom:1em;}
+ 
+.clear {
+   clear:both;
+   height:0px;
+   overflow:hidden;}
+   
+   
+#containerMain {
+   text-align:center;
+   width:1024px; 
+   margin: 0 auto;
+   z-index:2;}
+
+#contentMain {
+   position:relative;
+   margin:0 auto;
+   text-align:left;
+   /*width:960px;*/
+   width:1210px;
+   z-index:10;}
+
+#loginPage {
+   margin-top:100px;
+   text-align:left;
+   width:660px;
+   float:left;
+   z-index:10;}
+   
+#loginText {   
+   padding-top:0px;
+   } 
+	
+/*.intro {
+   color:#fff;
+   font-size:13px;
+   padding:0px 20px 10px 20px;} 
+   
+#loginForm {   
+   width:288px;
+	height:229px;
+   	background: url('/telus/images/loginFormBG.png') no-repeat 0 0;
+   	padding-top:50px;}
+*/
+.intro {
+   color:#000;
+   font-size:13px;
+   margin:0px 20px 20px 10px;}
+
+.loginForm {
+	width:492px;
+	height:286px;
+   	background: url('/telus/images/loginBG.png') no-repeat 0 0;
+   	margin-top:150px;}
+   
+.hdrFrame548 {
+   width:548px;
+   background: url('/telus/images/hdrFrame548.png') no-repeat 0 0;  
+   } 
+
+.bgFrame548 { 
+   width:548px; 
+   background: url('/telus/images/bgFrame548.png') no-repeat left bottom; }
+
+
+
+
+	
+#visitorForm {   
+    width:427px;
+	height:257px;
+   	background: url('/telus/images/visitorInfor.png') no-repeat 0 0;
+   	padding-top:50px;}
+
+fieldset {
+   border:none;
+}	
+fieldset.loginDetails {
+   padding: 15px 0px 0px 45px;}
+   
+.logCol {
+   width:165px;
+   float: left;}
+   
+.logCol label {
+	font-size: 11px;
+}
+   
+fieldset div.col input{
+   width:113px;}
+
+.centered {
+	padding-top:30px;
+   text-align:center; }
+   
+.spacer {padding:5px 0px 5px 30px;
+ }
+ 
+/* #contentMain {
+   position:relative;
+   margin:0 auto;
+   text-align:center;
+   width:1210px;
+   z-index:10;}
+   */
+   
+ #containerLeft {
+   position:relative;
+   float:left;
+   line-height:15px;
+   width:176px;
+   z-index:41; }
+   
+#containerMid {
+   position:relative;
+   line-height:17px;
+   margin-top: 30px;
+   *width:568px;}
+
+
+
+.roundedTop{
+   padding-top:4px; /* think why? */
+   background:url('/telus/images/roundedTop568.png') no-repeat top left; }
+
+.roundedBottom {
+   height:6px;
+   background:url('/telus/images/roundedBottom568.png') no-repeat top left;}
+
+#insideMid{
+   position:center;
+   padding:6px 10px 6px 10px;
+   width:548px;
+   background-color: white;}
+ 
+#topNev {  
+	background: url('/telus/images/topMenuBG.png') no-repeat top right;
+	text-align: right;
+	padding-right:20px;
+}
+.inputHeader {
+   background: url('/telus/images/bgInput.png') no-repeat top left;
+   width: 668px;
+   height: 83px;
+   position: relative;
+   z-index: 1;}
+   
+.inputHeader1000 {
+   background: url('/telus/images/bgInput1000.png') no-repeat top left;
+   width: 1000px;
+   height: 83px;
+   position: relative;
+   z-index: 1;}
+
+.inputHeader {
+	font-size: 18px;
+   color:#FFF;
+   text-align:left;
+   padding-top: 20px;
+   padding-left: 10px; }
+
+#inputMid {
+   background:url('/telus/images/bg_black_bottom.png') no-repeat bottom left;
+   padding-left:0px;
+   padding-right:0px;
+   padding-top:0px;
+   width:668px}
+   
+#inputMid1000 {
+   background:url('/telus/images/bg_black_bottom1000.png') no-repeat bottom left;
+   padding-left:0px;
+   padding-right:0px;
+   padding-top:0px;
+   width:1000px}
+
+.formContainer {
+   width:668px;
+   /*width:1000px;*/
+   margin:0;
+   /*padding-left: 9px;*/
+   background-color:#fff;}
+   
+ .formContainer1000 {
+   width:1000px;
+   margin:0;
+   /*padding-left: 9px;*/
+   background-color:#fff;}
+   
+ .blackdBottom {
+   height:6px;
+   background:url('/telus/images/roundedBottom668.png') no-repeat top left;}
+
+.centered {
+   text-align:center;
+   margin-top:8px;
+   padding-bottom:8px;}
+   
+.LeftPicture { padding-left:35px; }
+.textArea { 
+   width:178px; 
+   vertical-align:top; 
+   padding:0px 15px 5px 5px; 
+   height:100px;
+   font-size:11px;}
+   
+.textArea P { margin:0px 0px 0px 0px; }
+.spacer {padding:5px 12px 5px 20px; }
+
+.table {
+  background-color:transparent;
+  }
+  
+.tableHdr {
+	padding-left:8px;
+	background:url('/telus/images/bg_tableHdr.png') repeat-x 0 50%;
+	border: 1px solid #aaa;
+	line-height:20px;
+	font-weight:bold;
+	font-size:13px;
+	text-align:center;
+    font-family:Trebuchet MS,arial,verdana;}
+	
+.tableHdrB {
+	padding-left:8px;
+	background:url('/telus/images/bg_tableHdrB.png');
+	/*border: 1px solid #000;*/
+	color:#FFFFFF;
+	line-height:20px;
+	font-weight:bold;
+	font-size:13px;
+    font-family:Trebuchet MS,arial,verdana;}
+  
+.formTitle {
+  font-weight:bold;
+  font-size:12px;
+  font-family:Trebuchet MS,arial,verdana;
+  padding-left:8px;}
+  
+.formHdr {
+table-layout:auto;
+text-align:left;
+  color: #0085bd;
+  font-size:11px;
+  font-family:Trebuchet MS,arial,verdana;}
+  
+.tableText {
+  text-align:left;
+  font-size:11px;
+  font-family:Trebuchet MS,arial,verdana;
+  }
+  
+.cellText {
+  font-size:11px;
+  font-family:Trebuchet MS,arial,verdana;
+  }
+  
+.grid_rb {
+  border-right:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+.grid_lb {
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+.grid_lrb {
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+.grid_lbt {
+  border-top:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+  
+.grid_frame {
+  border-top:1px solid #aaa;
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-bottom:1px solid #aaa;}
+
+.grid_lt {
+  border-top:1px solid #aaa;
+  border-left:1px solid #aaa;}
+   
+.grid_lrt {
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;
+  border-top:1px solid #aaa;}  
+  
+.grid_lr {
+  border-right:1px solid #aaa;
+  border-left:1px solid #aaa;}
+  
+.grid_l {
+  border-left:1px solid #aaa;}  
+  
+.grid_r {
+  border-right:1px solid #aaa;}
+  
+.grid_b {
+  border-bottom:1px solid #aaa;}

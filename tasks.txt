@@ -1,0 +1,13 @@
+ALL_+YEAR - 2ND SCREEN
+3RD SCREEN - LT_CRASH COUNT YEARLY
+
+
+- Crashes chart on second level
+- Crashes and severity on different axes
+- Add "info" button for eac chart
+- Disable custom reports
+- CDP Multiple panel, change size to 4-8
+
+excel report download - route and sri together
+Dashboard
+score management

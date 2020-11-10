@@ -1,0 +1,24 @@
+.link A:link {
+	COLOR: Black;
+	TEXT-DECORATION: underline;
+	font : 8pt Arial;
+}
+.link A:hover {
+	COLOR: Red;
+	TEXT-DECORATION: none;
+	font : 8pt Arial;
+}
+.link A:visited {
+	COLOR: Black;
+	TEXT-DECORATION: underline;
+	font : 8pt Arial;
+}
+.link A:visited:hover {
+	COLOR: Red;
+	TEXT-DECORATION: none;
+	font : 8pt Arial;
+}
+.body  {
+	COLOR: black;
+	font : 9pt Arial;
+}

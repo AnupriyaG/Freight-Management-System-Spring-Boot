@@ -1,0 +1,2635 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity-mappings
+        xmlns="http://java.sun.com/xml/ns/persistence/orm"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/persistence/orm http://java.sun.com/xml/ns/persistence/orm_2_0.xsd"
+        version="2.0">
+    <!-- DecisionVariableScoreRangeRepository -->
+    <named-native-query name="DecisionVariableScoreRange.listScoreRatios"
+                        result-class="edu.njit.fms.db.entity.DecisionVariableScoreRange">
+        <query>
+            select
+                Mode, 
+                CAST(start_range as decimal(20,12)) start_range, 
+                CAST(end_range as decimal(20,12)) end_range, 
+                weight_percentage, 
+                id 
+            from 
+                decision_variable_score_range 
+            where 
+                Mode = ?1 
+            order by 
+                Mode,
+                CAST(start_range as decimal(20,12))
+        </query>
+    </named-native-query>
+    
+    <named-native-query name="Dashboard.getRoadList">
+        <query>
+            SELECT DISTINCT road FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE ORDER BY road ASC
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getDirectionList">
+        <query>
+            SELECT DISTINCT direction, sri FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE WHERE road = :road ORDER BY direction
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getYearList">
+        <query>
+            SELECT DISTINCT DataYear FROM AnnualChartData order by DataYear
+        </query>
+    </named-native-query>
+
+    <named-native-query name="Dashboard.getStateTTTRI">
+        <query>
+            SELECT DataYear, TTTR_INDEX FROM AnnualChartData order by DataYear
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getStateMilesUncongested">
+        <query>
+            SELECT DataYear, PercInterstateMilageUncongested FROM AnnualChartData order by DataYear
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getStatePercTotalCrashes">
+        <query>
+            SELECT
+			  REPORT_YEAR,
+			  ROUND(CAST((SUM(LT_CRASH_COUNT_YEARLY) + SUM(OT_CRASH_COUNT_YEARLY)) AS DECIMAL) / CAST(SUM(TOTAL_CRASH_YEARLY) AS DECIMAL) * 100, 2) 
+			FROM
+			  [dbo].[CrashDataProcessed] 
+			WHERE
+			  report_year >= 2014 
+			GROUP BY
+			  report_year			
+        </query>
+    </named-native-query>
+
+    <named-native-query name="Dashboard.getRouteTTTRI">
+        <query>
+            SELECT DISTINCT DATA_YEAR_TRUCK, ROUND(TIME_PERIOD_TTTR_INDEX, 2) TIME_PERIOD_TTTR_INDEX
+            FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE WHERE direction = :direction AND road = :road
+            ORDER BY DATA_YEAR_TRUCK
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getRouteMilesUncongested">
+        <query>
+            SELECT DISTINCT DATA_YEAR_TRUCK, PERC_MILE_UNCONGESTED_OVERALL
+            FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE WHERE direction = :direction AND road = :road
+            ORDER BY DATA_YEAR_TRUCK
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getRoutePercTotalCrashes">
+        <query>
+			SELECT
+			  REPORT_YEAR,
+			  ROUND(CAST((SUM(LT_CRASH_COUNT_YEARLY) + SUM(OT_CRASH_COUNT_YEARLY)) AS DECIMAL) / CAST(SUM(TOTAL_CRASH_YEARLY) AS DECIMAL) * 100, 2) AS a
+			FROM
+			  [dbo].[CrashDataProcessed] 
+			WHERE
+			  report_year >= 2014
+			  AND sri = :sri  
+			GROUP BY
+			  report_year            
+        </query>
+    </named-native-query>
+    
+     <named-native-query name="Dashboard.getRouteTttriByMilepost">
+        <query>
+            <![CDATA[ 
+                SELECT
+                    DATA_YEAR_TRUCK,
+                    milepost,
+                    MAX_TTTR 
+                FROM
+                    NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+                WHERE
+                    
+                    direction = ?2 AND
+                    road = ?1 AND
+                    TIME_PERIOD_TRUCK = 'Overnight' 
+                ORDER BY
+                    milepost,
+                    direction,
+                    TIME_PERIOD_TRUCK,
+                    road_order
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getRouteCrashesByMilepost">
+        <query>
+            <![CDATA[
+                SELECT
+				  REPORT_YEAR, SMP,
+				  ROUND(CAST((SUM(LT_CRASH_COUNT_YEARLY) + SUM(OT_CRASH_COUNT_YEARLY)) AS DECIMAL) / CAST(SUM(TOTAL_CRASH_YEARLY) AS DECIMAL) * 100, 2) 
+				FROM
+				  [DBO].[CRASHDATAPROCESSED] 
+				WHERE
+				  REPORT_YEAR >= 2014
+				  AND SRI = :sri
+				GROUP BY REPORT_YEAR, SMP
+				ORDER BY REPORT_YEAR, SMP
+            ]]> 
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getRouteVolumeByMilepost">
+        <query>
+            <![CDATA[
+                SELECT [MP_START], ROUND([LargeTruckPercentage],2) LargeTruckPercentage
+				FROM [dbo].[TruckVolume2019]
+				WHERE SRI = :sri
+				ORDER BY SRI, MP_START
+            ]]> 
+        </query>
+    </named-native-query>
+
+    <named-native-query name="Dashboard.getRouteTttriCategoriesByMilepost">
+        <query>
+            <![CDATA[ 
+                SELECT 
+                    cast(TIME_PERIOD_TRUCK as varchar) a, 
+                    road_order, 
+                    SEG_TTTR, 
+                    milepost, 
+                    (
+                        CASE 
+                            WHEN TIME_PERIOD_TRUCK = 'Weekdays 6AM - 10AM' THEN 1 
+                            WHEN TIME_PERIOD_TRUCK = 'Weekdays 10AM - 4PM' THEN 2 
+                            WHEN TIME_PERIOD_TRUCK = 'Weekdays 4PM - 8PM' THEN 3 
+                            WHEN TIME_PERIOD_TRUCK = 'Overnight' THEN 4 
+                            WHEN TIME_PERIOD_TRUCK = 'Weekends' THEN 5 
+                        END 
+                    ) TIME_PERIOD_ORDER 
+                FROM 
+                    NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+                WHERE 
+                    DATA_YEAR_TRUCK = ?3 
+                    AND direction = ?2 
+                    AND road = ?1 
+                ORDER BY 
+                    milepost,
+                    direction, 
+                    TIME_PERIOD_ORDER, 
+                    road_order
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getRouteCrashesCategoriesByMilepost">
+        <query>
+            <![CDATA[
+                SELECT [SMP], [LT_CrashRate] 
+				FROM [dbo].[CrashCountAndCrashSeverityRate2019]
+				WHERE SRI = :sri AND REPORT_YEAR = :year and [LT_CrashRate] != 0
+				ORDER BY SMP
+            ]]> 
+        </query>
+    </named-native-query>
+
+    <named-native-query name="Dashboard.getRouteLargeTruckSeverityByMilepost"><!-- Get severity Rate -->
+        <query>
+            <![CDATA[ 
+                SELECT [SMP], [LT_SevirityRate] 
+				FROM [dbo].[CrashCountAndCrashSeverityRate2019]
+				WHERE SRI = :sri AND REPORT_YEAR = :year AND [LT_SevirityRate] != 0
+				ORDER BY SMP 
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getRouteLargeTruckSeverityForExcelReport">
+        <query>
+            <![CDATA[ 
+            SELECT REPORT_YEAR, [SMP], [LT_SevirityRate] 
+            FROM [dbo].[CrashCountAndCrashSeverityRate2019]
+            WHERE SRI = :sri AND  
+                  REPORT_YEAR >=2014 AND
+                  [LT_SevirityRate] != 0
+            ORDER BY REPORT_YEAR, SMP 
+            ]]>
+        </query>
+    </named-native-query>
+
+    <named-native-query name="Dashboard.getCrashes">
+        <query>
+            <![CDATA[ 
+                SELECT * FROM avg3yearcrashrate where sri_id = ?1 
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getTTRIBarDataByIDY">
+        <query>
+            SELECT 
+                cast(TIME_PERIOD_TRUCK as varchar) a, 
+                road_order, 
+                SEG_TTTR, 
+                milepost, 
+                (
+                    CASE 
+                        WHEN TIME_PERIOD_TRUCK = 'Weekdays 6AM - 10AM' THEN 1 
+                        WHEN TIME_PERIOD_TRUCK = 'Weekdays 10AM - 4PM' THEN 2 
+                        WHEN TIME_PERIOD_TRUCK = 'Weekdays 4PM - 8PM' THEN 3 
+                        WHEN TIME_PERIOD_TRUCK = 'Overnight' THEN 4 
+                        WHEN TIME_PERIOD_TRUCK = 'Weekends' THEN 5 
+                    END 
+                ) TIME_PERIOD_ORDER 
+            FROM 
+                NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+            WHERE 
+                DATA_YEAR_TRUCK = ?3 
+                AND direction = ?2 
+                AND road = ?1 
+            ORDER BY 
+                direction, 
+                TIME_PERIOD_ORDER, 
+                road_order
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getMaxTTRIBarDataByIDY">
+        <query>
+            SELECT 
+                road_order, 
+                MAX_TTTR, 
+                milepost 
+            FROM 
+                NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+            WHERE 
+                DATA_YEAR_TRUCK = ?3 
+                AND direction = ?2 
+                AND road = ?1 
+                and TIME_PERIOD_TRUCK = 'Overnight' 
+            ORDER BY 
+                direction, 
+                TIME_PERIOD_TRUCK, 
+                road_order
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getMilesUnconDataByIDY">
+        <query>
+            <![CDATA[ 
+                SELECT 
+                    PERC_MILE_UNCONGESTED_OVERALL 
+                FROM 
+                    NPMRDS_INTERSTATE_PERFORMANCE_MEASURE 
+                WHERE 
+                    DATA_YEAR_TRUCK = ?2 
+                AND 
+                    road = ?1
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getCrashPercDataByIDY">
+        <query>
+            <![CDATA[ 
+                SELECT 
+                    LargeTruckCrashPercent, 
+                    OtherTruckCrashPercent 
+                FROM 
+                    AnnualInterstateCrashRate 
+                WHERE 
+                    DataYear = ?3 
+                AND
+                    Road = ?1 
+                AND 
+                    Direction = ?2
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getTruckVolumePerc">
+        <query>
+            <![CDATA[ 
+                SELECT
+                    ROUTE, 
+                    (PercentOfTruckVol * 100)  AS PercentOfTruckVolume,
+                    Direc AS Direction  
+                FROM 
+                    TruckVolume  
+                WHERE 
+                    ROUTE = ?1  
+                AND 
+                    Direc = ?2
+            ]]>
+        </query>
+    </named-native-query>
+    <!--my changes -->
+    <named-native-query name="Dashboard.getStateSummaryForExcelReport">
+        <query>
+            <![CDATA[ 
+            SELECT C.report_year, A.TTTR_INDEX, 
+            ROUND(CAST((SUM(C.LT_CRASH_COUNT_YEARLY) + SUM(C.OT_CRASH_COUNT_YEARLY)) AS DECIMAL) / CAST(SUM(C.TOTAL_CRASH_YEARLY) AS DECIMAL) * 100, 2) as Total_Crashes, A.PercInterstateMilageUncongested
+            from AnnualChartData A, CrashDataProcessed C
+            WHERE
+			  C.report_year = A.DataYear 
+            GROUP BY
+			  C.report_year, A.TTTR_INDEX,A.PercInterstateMilageUncongested;
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="Dashboard.getRouteSummaryForExcelReport">
+        <query>
+            <![CDATA[ 
+            SELECT DISTINCT  C.report_year, 
+                    N.road, 
+                    N.direction, N.SRI,
+                    ROUND(N.TIME_PERIOD_TTTR_INDEX, 2) AS TIME_PERIOD_TTTR_INDEX ,
+                    N.PERC_MILE_UNCONGESTED_OVERALL,
+                    ROUND(CAST((SUM(LT_CRASH_COUNT_YEARLY) + SUM(OT_CRASH_COUNT_YEARLY)) AS DECIMAL) / CAST(SUM(TOTAL_CRASH_YEARLY) AS DECIMAL) * 100, 2) AS Per_Tot_Crashes
+	        FROM NPMRDS_INTERSTATE_PERFORMANCE_MEASURE N, CrashDataProcessed C
+	        where   C.report_year = N.DATA_YEAR_TRUCK 
+                    and N.road=?1 and N.direction=?2
+                    and C.sri = ?3
+	        Group BY  C.report_year, N.PERC_MILE_UNCONGESTED_OVERALL, N.road, N.TIME_PERIOD_TTTR_INDEX, N.direction, N.SRI
+	        order by C.report_year
+            ]]>
+        </query>
+    </named-native-query>
+
+    <named-native-query name="FmsStip.getDistinctDBNUM">
+        <query>
+            <![CDATA[
+                SELECT 
+                    DBNUM 
+                FROM 
+                    fms_stip 
+                WHERE 
+                    SRI IS NOT NULL AND 
+                    CAST(SUBSTRING(SRI, 1,6) AS INT) < 5 AND 
+                    DBNUM IS NOT NULL AND 
+                    MP_FROM is not null and 
+                    MP_TO is not null and 
+                    MP_TO != 0 
+                GROUP BY 
+                    DBNUM 
+                ORDER BY 
+                    DBNUM
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctProjectNames">
+        <query>
+            <![CDATA[ 
+                SELECT 
+                    PROJECT_NAME 
+                FROM 
+                    fms_stip 
+                WHERE 
+                    SRI IS NOT NULL AND 
+                    CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND 
+                    MP_FROM is not null and 
+                    MP_TO is not null and 
+                    MP_TO != 0 
+                GROUP BY 
+                    DBNUM, 
+                    PROJECT_NAME 
+                ORDER BY 
+                    PROJECT_NAME
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctRoutes">
+        <query>
+            SELECT distinct 
+                ROUTE 
+            FROM 
+                fms_stip 
+            WHERE 
+                SRI IS NOT NULL 
+            ORDER BY 
+                ROUTE
+        </query>
+    </named-native-query>
+    
+    <named-native-query name="FmsStip.getDistinctRoutesWithNulls">
+        <query>
+            SELECT distinct 
+                ROUTE 
+            FROM 
+                fms_stip 
+            ORDER BY 
+                ROUTE
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctProgManag">
+        <query>
+            SELECT distinct 
+                PROGMANAG 
+            FROM 
+                fms_stip 
+            WHERE 
+                SRI IS NOT NULL 
+            ORDER BY 
+                PROGMANAG
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctCounty">
+        <query>
+            <![CDATA[ 
+                SELECT distinct 
+                    COUNTY 
+                FROM 
+                    fms_stip 
+                WHERE 
+                    SRI IS NOT NULL AND 
+                    CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND 
+                    MP_FROM is not null and 
+                    MP_TO is not null and 
+                    MP_TO != 0 ORDER BY COUNTY
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctMunicipality">
+        <query>
+            <![CDATA[ 
+                SELECT distinct 
+                    MUNC1 
+                FROM 
+                    fms_stip 
+                WHERE 
+                    SRI IS NOT NULL AND 
+                    CAST(SUBSTRING(SRI, 1,6) AS int) < 5 
+                    AND MP_FROM is not null and 
+                    MP_TO is not null and 
+                    MP_TO != 0 
+                ORDER BY 
+                    MUNC1
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctMPO">
+        <query>
+            <![CDATA[ 
+                SELECT distinct 
+                    MPO 
+                FROM 
+                    fms_stip 
+                WHERE 
+                    SRI IS NOT NULL AND 
+                    CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND 
+                    MP_FROM is not null and 
+                    MP_TO is not null and 
+                    MP_TO != 0 
+                ORDER BY 
+                    MPO
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctCISCategory">
+        <query>
+            <![CDATA[ 
+            SELECT distinct 
+                CIS_PROGRAM_CATEGORY 
+            FROM 
+                fms_stip 
+            WHERE 
+                SRI IS NOT NULL AND 
+                CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND 
+                MP_FROM is not null and 
+                MP_TO is not null and 
+                MP_TO != 0 
+            ORDER BY 
+                CIS_PROGRAM_CATEGORY
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDistinctCISSubCategory">
+        <query>
+            <![CDATA[ 
+                SELECT distinct 
+                    CIS_SUBCATEGORY 
+                FROM 
+                    fms_stip 
+                WHERE 
+                    SRI IS NOT NULL AND 
+                    CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND 
+                    MP_FROM is not null and 
+                    MP_TO is not null and 
+                    MP_TO != 0 AND 
+                    CIS_PROGRAM_CATEGORY = ? 
+                ORDER BY 
+                    CIS_SUBCATEGORY
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getProjectCascade">
+        <query>
+            SELECT distinct PROJECT_NAME + '||' +  PROGMANAG AS PROJECTCASCADE FROM fms_stip WHERE SRI IS NOT NULL
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getCustomRoutes">
+        <query>
+            SELECT distinct ROUTE, DBNUM2 FROM fms_segment ORDER BY ROUTE
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getRouteBySRI">
+        <query>
+            SELECT distinct ROUTE, DBNUM2 FROM fms_segment WHERE DBNUM2 = ?1
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getAllDBNUMForScoring">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip WHERE (SRI IS NOT NULL AND SRI <> '') AND MP_FROM is not null and MP_TO is not null and MP_TO != 0 AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByProjectName">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and MP_TO is not null and MP_TO != 0 and PROJECT_NAME = ?1 and SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByRoute">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and ROUTE = ?1 and SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByCounty">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and COUNTY = ?1 and SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByMunicipality">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and MUNC1 = ?1 and SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByMPO">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and MPO = ?1 and SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByProgManag">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and PROGMANAG = ?1 and SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByCISCategory">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and CIS_PROGRAM_CATEGORY = ?1 and SRI IS NOT NULL
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getDBNUMForScoringByCISCategoryAndCISBubcategory">
+        <query>
+            <![CDATA[ 
+            select DBNUM from fms_stip where MP_FROM is not null and CIS_PROGRAM_CATEGORY = ?1 and CIS_SUBCATEGORY = ?2 and SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0
+            ]]>
+        </query>
+    </named-native-query>   
+    <named-native-query name="FmsStip.getSystemNameFromID">
+        <query>
+            select 
+                SystemName 
+            from 
+                scrsystem 
+            where 
+                SystemID = ?1
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getStipScoringSystemReportData">
+        <query>
+            SELECT 
+                systemId,
+                [Large Truck Crash Rate],
+                [Large Truck Severity Rate],
+                [National Highway Network],
+                [New Jersey Access Network],
+                [Intermodal Connector],
+                [National Highway Freight Network], 
+                [Percentage of Large Truck Volume],
+                [Truck Travel Time Reliability Index],
+                [Overweight Truck Permits], 
+                    [Large Truck Crash Rate]+
+                    [Large Truck Severity Rate]+
+                    [National Highway Network]+
+                    [New Jersey Access Network]+ 
+                    [Intermodal Connector]+
+                    [National Highway Freight Network]+
+                    [Percentage of Large Truck Volume]+
+                    [Truck Travel Time Reliability Index]+
+                    [Overweight Truck Permits] 
+                as Total_Score 
+            FROM 
+                ( 
+                    select 
+                        systemId,
+                        Round([Large Truck Crash Rate]/25,2)*25 AS 'Large Truck Crash Rate',
+                        Round([Large Truck Severity Rate]/25,2)*25 AS 'Large Truck Severity Rate', 
+                        Round([National Highway Network]/25,2)*25 AS 'National Highway Network',
+                        Round([New Jersey Access Network]/25,2)*25 AS 'New Jersey Access Network', 
+                        Round([Intermodal Connector]/25,2)*25 AS 'Intermodal Connector',
+                        Round([National Highway Freight Network]/25,2)*25 AS 'National Highway Freight Network', 
+                        Round([Percentage of Large Truck Volume]/25,2)*25 AS 'Percentage of Large Truck Volume',
+                        Round([Truck Travel Time Reliability Index]/25,2)*25 AS 'Truck Travel Time Reliability Index', 
+                        Round([Overweight Truck Permits]/25,2)*25 AS 'Overweight Truck Permits' 
+                    from 
+                        (
+                            select 
+                                systemID, 
+                                max_score,factor_description 
+                            from 
+                            (
+                                select 
+                                    s.SystemID,
+                                    s.Cat_ID,
+                                    s.Factor_ID,
+                                    s.Factor_Description,
+                                    s.Weight as Perc_Weight,
+                                    t.weight, 
+                                    cast(((s.Weight/100)*t.weight)as decimal(10,2)) as Max_Score 
+                                from 
+                                    scrfactor s 
+                                join 
+                                    (
+                                        select 
+                                            SystemID, 
+                                            Cat_ID, 
+                                            Weight 
+                                        from 
+                                            scrcategory 
+                                        where 
+                                            SystemID = ?1
+                                    ) t 
+                                on s.Cat_ID = t.Cat_ID 
+                                and s.SystemID = t.SystemID
+                            ) p
+                        )i 
+                    pivot 
+                        ( 
+                            sum(Max_Score) 
+                            for Factor_Description 
+                            in (
+                                [Large Truck Crash Rate],
+                                [Large Truck Severity Rate],
+                                [National Highway Network],
+                                [New Jersey Access Network], 
+                                [Intermodal Connector],
+                                [National Highway Freight Network],
+                                [Percentage of Large Truck Volume],
+                                [Truck Travel Time Reliability Index],
+                                [Overweight Truck Permits]
+                            )
+                        ) AS pvt 
+                ) F
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getTTRIBarData">
+        <query>
+SELECT TTTR_INDEX FROM AnnualChartData order by DataYear
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getMilesUnconBarData">
+        <query>
+SELECT PercInterstateMilageUncongested FROM AnnualChartData order by DataYear
+        </query>
+    </named-native-query>
+    <named-native-query name="FmsStip.getPercCrashRateBarData">
+        <query>
+SELECT LargeTruckCrash, OtherTruckCrash FROM AnnualChartData order by DataYear
+        </query>
+    </named-native-query>    
+    <named-native-query name="FmsStip.getDBNUMListMain">
+        <query>
+            <![CDATA[ 
+            SELECT DBNUM FROM fms_stip WHERE SRI IS NOT NULL AND CAST(SUBSTRING(SRI, 1,6) AS int) < 5 AND MP_FROM is not null and MP_TO is not null and MP_TO != 0 GROUP BY DBNUM ORDER BY DBNUM",
+            ]]>
+        </query>
+    </named-native-query>  
+                      
+    <named-native-query name="FmsStip.getSTIPExcelReport">
+        <query>
+            SELECT T1.DBNUM,
+                T1.[Project Type],
+                T1.[Project Name],
+                T1.Route,
+                T1.SRI,
+                T1.[Start MP],
+                T1.[End MP],
+                T1.MPO,
+                T1.[System Name],
+                T1.[Large Truck Severity Rate],
+                T1.[Overweight Truck Permits],
+                T1.[Percentage of Large Truck Volume],
+                T1.[Truck Travel Time Reliability Index],
+                T1.[National Highway Network],
+                T1.[Large Truck Crash Rate],
+                T1.[Intermodal Connector],
+                T1.[NJ Access Network],
+                T1.[National Highway Freight Network],
+                T1.[Total Score], 
+        (CASE WHEN T1.[Total Score] Between T2.Acceptable_Range_From AND T2.Acceptable_Range_To THEN 'Acceptable'
+                            WHEN T1.[Total Score] Between T2.Low_Range_From AND T2.Low_Range_To THEN 'Low Priority'
+                            WHEN T1.[Total Score] Between T2.Medium_Range_From AND T2.Medium_Range_To THEN 'Medium Priority'
+                            WHEN T1.[Total Score] Between T2.High_Range_From AND T2.High_Range_To THEN 'High Priority'
+                            ELSE ' ' 
+                    END) AS Priority FROM (SELECT
+        DISTINCT DBNUM,
+
+
+        CIS_PROGRAM_CATEGORY [Project Type],
+        PROJECT_NAME [Project Name],
+        ROUTE Route,
+        SRI,
+        MP_FROM [Start MP],
+        MP_TO [End MP],
+        MPO,
+        SystemName [System Name],
+        SEV_SCR_STIP [Large Truck Severity Rate],
+        OVERWEIGHT_SCR_STIP [Overweight Truck Permits],
+        LT_PERC_STIP [Percentage of Large Truck Volume],
+        TTTRI_SCR_STIP [Truck Travel Time Reliability Index],
+        NHS_SCR_STIP [National Highway Network],
+        LT_SCR_STIP [Large Truck Crash Rate],
+        INTERMODAL_SCR_STIP [Intermodal Connector],
+        NJ_ACCESS_SCR_STIP [NJ Access Network],
+        NHFN_SCR_STIP [National Highway Freight Network],
+        TOTAL_SEG_SCR [Total Score] 
+        FROM
+        ( SELECT
+            T4.DBNUM,
+            t4.gis_url,
+            T4.SRI,
+            T4.MP_FROM,
+            T4.MP_TO,
+            T4.PROJECT_NAME,
+            T4.ROUTE,
+            T4.COUNTY,
+            T4.MUNC1,
+            T4.MPO,
+            T4.SystemName,
+            T4.PROGMANAG,
+            T4.SYSTEMID,
+            T4.CIS_PROGRAM_CATEGORY,
+            T4.CR_SCR_STIP,
+            T4.SEV_SCR_STIP,
+            t4.LT_PERC_STIP,
+            T4.NHS_SCR_STIP,
+            T4.NJ_ACCESS_SCR_STIP,
+            T4.INTERMODAL_SCR_STIP,
+            T4.NHFN_SCR_STIP,
+            T4.LT_SCR_STIP,
+            T4.OVERWEIGHT_SCR_STIP,
+            T4.TTTRI_SCR_STIP,
+            T4.TOTAL_SEG_SCR,
+            T5.MAX_TOTAL_SEG_SCR,
+            T5.AVG_TOTAL_SEG_SCR 
+            FROM
+            ( SELECT T1.DBNUM, GIS_URL, T1.SRI, T1.MP_FROM, T1.MP_TO, T1.PROJECT_NAME, T1.ROUTE, T1.COUNTY, T1.CIS_PROGRAM_CATEGORY, T1.MUNC1, T1.SystemName, T1.MPO, T1.PROGMANAG,
+                T1.SYSTEMID, CONVERT(FLOAT,T1.LT_PERC) AS LT_PERC_STIP,CONVERT(FLOAT,T1.CR_SCR) AS CR_SCR_STIP, CONVERT(FLOAT,T1.SEV_SCR) AS SEV_SCR_STIP, CONVERT(FLOAT,T1.NHS_SCR)                                                                                                                                                                                                                                                                                          
+                AS NHS_SCR_STIP, CONVERT(FLOAT,T1.NJ_ACCESS_SCR) AS NJ_ACCESS_SCR_STIP, CONVERT(FLOAT,T1.INTERMODAL_SCR) AS INTERMODAL_SCR_STIP, CONVERT(FLOAT,T1.NHFN_SCR) AS NHFN_SCR_STIP,                                                                                                                                                                                                                                                                                          
+                CONVERT(FLOAT,T1.LT_SCR) AS LT_SCR_STIP, CONVERT(FLOAT,T1.OVERWEIGHT_SCR) AS OVERWEIGHT_SCR_STIP, CONVERT(FLOAT,T1.TTTRI_SCR) AS TTTRI_SCR_STIP,                                                                                                                                                                                                                                                                                      
+                (CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,T1.NHS_SCR) + CONVERT(FLOAT ,T1.NJ_ACCESS_SCR) +
+                --CONVERT(float,T1.CR_SCR) +
+                CONVERT(FLOAT,T1.INTERMODAL_SCR) + CONVERT(FLOAT,T1. NHFN_SCR) + CONVERT(FLOAT,T1.LT_SCR) + CONVERT(FLOAT, T1. OVERWEIGHT_SCR) + CONVERT(FLOAT,T1.TTTRI_SCR) + CONVERT( FLOAT,T1.LT_PERC)) AS 
+                TOTAL_SEG_SCR                                                                                                                                                                                                                                                                                
+                FROM
+                ( SELECT fms_stip.DBNUM, GIS_URL, SRI, MP_FROM, MP_TO, PROJECT_NAME, CIS_PROGRAM_CATEGORY, ROUTE, COUNTY, MUNC1, MPO, PROGMANAG,F1.SYSTEMID,
+                    MPO2                                     AS CR_SCR,
+                    F1.[Large Truck Severity Rate]           AS SEV_SCR,
+                    F1.[Percentage of Large Truck Volume]    AS LT_PERC,
+                    F1.[National Highway Network]            AS NHS_SCR,
+                    F1.[New Jersey Access Network]           AS NJ_ACCESS_SCR,
+                    F1.[Intermodal Connector]                AS INTERMODAL_SCR,
+                    F1.[National Highway Freight Network]    AS NHFN_SCR ,
+                    F1.[Large Truck Crash Rate]              AS LT_SCR,
+                    F1.[Overweight Truck Permits]            AS OVERWEIGHT_SCR,
+                    F1.[Truck Travel Time Reliability Index] AS TTTRI_SCR,
+                    F1.SystemName 
+                    FROM
+                    fms_stip 
+                    JOIN (SELECT
+                            YEAR,
+                            DBNUM,
+                            SYSTEMID,
+                            SystemName,
+                            ISNULL([Large Truck Crash Rate],0)                AS 
+                            [Large Truck Crash Rate],
+                            ISNULL([Large Truck Severity Rate],0)             AS 
+                            [Large Truck Severity Rate],
+                            ISNULL([National Highway Network],0)              AS 
+                            [National Highway Network],
+                            ISNULL([New Jersey Access Network],0)             AS 
+                            [New Jersey Access Network],
+                            ISNULL([Intermodal Connector],0)                  AS 
+                            [Intermodal Connector],
+                            ISNULL( [National Highway Freight Network],0)     AS 
+                            [National Highway Freight Network],
+                            ISNULL( [Percentage of Large Truck Volume],0)     AS 
+                            [Percentage of Large Truck Volume],
+                            ISNULL( [Truck Travel Time Reliability Index] ,0) AS 
+                            [Truck Travel Time Reliability Index],
+                            ISNULL([Overweight Truck Permits],0)              AS 
+                            [Overweight Truck Permits] 
+                            FROM
+                            ( SELECT YEAR, dbnum, systemid, score, factor_description, systemname 
+                            FROM
+                                ( SELECT p.*, f.Factor_Description, f.Weight, systemname 
+                                    FROM
+                                    scrproject p 
+                                    JOIN scrfactor f 
+                                    ON p.SystemID = f. SystemID,
+                                    scrsystem x 
+                                    WHERE x.systemID = p.systemid AND p.Cat_ID = f.Cat_ID AND p.Factor_ID = f. Factor_ID )i )p pivot ( SUM(
+                            score) FOR Factor_Description IN ( 
+                            [Large Truck Crash Rate],
+                            [Large Truck Severity Rate],
+                            [National Highway Network],
+                            [New Jersey Access Network],
+                            [Intermodal Connector],
+                            [National Highway Freight Network],
+                            [Percentage of Large Truck Volume],
+                            [Truck Travel Time Reliability Index],
+                            [Overweight Truck Permits])) AS pvt) F1 
+                    ON fms_stip.DBNUM = F1.DBNUM ) T1) T4,
+            ( SELECT
+                DISTINCT T3.DBNUM,
+                T3.SYSTEMID,
+                MAX(T3.TOTAL_SEG_SCR) AS MAX_TOTAL_SEG_SCR,
+                AVG(T3.TOTAL_SEG_SCR) AS AVG_TOTAL_SEG_SCR 
+                FROM
+                ( SELECT
+                    T1.DBNUM,
+                    T1.SRI,
+                    T1.MP_FROM,
+                    T1.MP_TO,
+                    (CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,T1. NHS_SCR) + CONVERT(
+                    FLOAT,T1.NJ_ACCESS_SCR) +
+                    --CONVERT(float,T1.CR_SCR) +
+                    CONVERT(FLOAT,T1.INTERMODAL_SCR) + CONVERT(FLOAT,T1. NHFN_SCR) + 
+                    CONVERT(FLOAT,T1.LT_SCR) + CONVERT ( FLOAT,T1.OVERWEIGHT_SCR) + 
+                    CONVERT(FLOAT,T1. TTTRI_SCR ) + CONVERT(FLOAT,T1.LT_PERC)) AS 
+                    TOTAL_SEG_SCR,
+                    T1.SYSTEMID 
+                    FROM
+                    ( SELECT fms_stip.DBNUM, SRI, MP_FROM, MP_TO,
+                        MPO2                                     AS CR_SCR,
+                        F3.[Large Truck Severity Rate]           AS SEV_SCR,
+                        F3.[Percentage of Large Truck Volume]    AS LT_PERC,
+                        F3.[National Highway Network]            AS NHS_SCR,
+                        F3.[New Jersey Access Network]           AS NJ_ACCESS_SCR,
+                        F3.[Intermodal Connector]                AS INTERMODAL_SCR,
+                        F3.[National Highway Freight Network]    AS NHFN_SCR,
+                        F3.[Large Truck Crash Rate]              AS LT_SCR,
+                        F3.[Overweight Truck Permits]            AS OVERWEIGHT_SCR,
+                        F3.[Truck Travel Time Reliability Index] AS TTTRI_SCR,
+                        PROGMANAG,
+                        F3.SYSTEMID 
+                        FROM fms_stip 
+                        JOIN (SELECT
+                                YEAR,
+                                DBNUM,
+                                SYSTEMID,
+                                ISNULL([Large Truck Crash Rate], 0)                AS 
+                                [Large Truck Crash Rate],
+                                ISNULL( [Large Truck Severity Rate],0)             AS 
+                                [Large Truck Severity Rate],
+                                ISNULL( [National Highway Network],0)              AS 
+                                [National Highway Network],
+                                ISNULL( [New Jersey Access Network],0)             AS 
+                                [New Jersey Access Network],
+                                ISNULL([Intermodal Connector],0)                   AS 
+                                [Intermodal Connector],
+                                ISNULL( [National Highway Freight Network] ,0)     AS 
+                                [National Highway Freight Network] ,
+                                ISNULL( [Percentage of Large Truck Volume] ,0)     AS 
+                                [Percentage of Large Truck Volume] ,
+                                ISNULL( [Truck Travel Time Reliability Index] ,0 ) AS 
+                                [Truck Travel Time Reliability Index] ,
+                                ISNULL( [Overweight Truck Permits],0)              AS 
+                                [Overweight Truck Permits] 
+                                FROM
+                                ( SELECT
+                                    YEAR,
+                                    dbnum,
+                                    systemid,
+                                    score,
+                                    factor_description 
+                                    FROM
+                                    ( SELECT
+                                        p.*,
+                                        f. Factor_Description ,
+                                        f.Weight 
+                                        FROM
+                                        scrproject p 
+                                        JOIN scrfactor f 
+                                        ON p.SystemID = f.SystemID 
+                                        WHERE
+                                            p.Cat_ID = f. Cat_ID 
+                                        AND p.Factor_ID = f. Factor_ID )i)p pivot (SUM
+                                (score) FOR Factor_Description IN ( 
+                                [Large Truck Crash Rate],
+                                [Large Truck Severity Rate],
+                                [National Highway Network],
+                                [New Jersey Access Network],
+                                [Intermodal Connector],
+                                [National Highway Freight Network] ,
+                                [Percentage of Large Truck Volume] ,
+                                [Truck Travel Time Reliability Index] ,
+                                [Overweight Truck Permits])) AS pvt) F3 
+                        ON fms_stip.DBNUM = F3.DBNUM ) T1) T3 
+                GROUP BY T3.DBNUM, T3.SYSTEMID) T5 
+            WHERE T4.DBNUM = T5.DBNUM AND T4.TOTAL_SEG_SCR = T5.MAX_TOTAL_SEG_SCR) T6 
+        WHERE
+        SRI IS NOT NULL 
+        AND MP_TO != 0
+        AND :customsql
+        ) T1, priorityscrrange T2
+        </query>
+    </named-native-query>
+
+    <named-native-query name="User.listAllUsers" result-class="edu.njit.fms.db.entity.User">
+        <query>
+            select 
+                principle.loginid,
+                fullname,
+                value as groupid 
+            from 
+                principle,
+                profiletable 
+            where 
+                isgroup = 0 and 
+                name = 'agencyAlias' and 
+                principle.loginid = profiletable.loginid 
+            order by 
+                principle.loginid
+        </query>
+    </named-native-query>
+    <named-native-query name="User.getUserGroup">
+        <query>
+            select 
+                value 
+            from 
+                principle,profiletable
+            where 
+                isgroup = 0 and 
+                principle.loginid = profiletable.loginid 
+                and profiletable.loginid = ?1 
+                and name = 'userGroup'
+        </query>
+    </named-native-query>
+    <named-native-query name="User.getUserAgencyAlias">
+        <query>
+            select value from principle,profiletable
+     where isgroup = 0 and principle.loginid = profiletable.loginid 
+     and profiletable.loginid = ?1 
+     and name = 'agencyAlias'
+        </query>
+    </named-native-query>
+    <named-native-query name="User.getUserEmail">
+        <query>
+            select value from principle,profiletable
+            where isgroup = 0 and principle.loginid = profiletable.loginid 
+            and profiletable.loginid = ?1 
+            and name = 'emailFrom'
+        </query>
+    </named-native-query>
+    <named-native-query name="User.getUserFullName">
+        <query>
+                select cast(fullname as varchar) from principle,profiletable
+                where isgroup = 0 and principle.loginid = profiletable.loginid 
+                and profiletable.loginid = ?1 
+                and name = 'emailFrom'
+        </query>
+    </named-native-query>
+    <named-native-query name="User.getUserPassword">
+        <query>
+                select cast(password as varchar) from principle,profiletable
+                where isgroup = 0 and principle.loginid = profiletable.loginid 
+                and profiletable.loginid = ?1 
+                and name = 'emailFrom'
+        </query>
+    </named-native-query>
+    <named-native-query name="User.getGroupList">
+        <query>
+                select distinct cast(loginid as varchar) from roleloginmap
+        </query>
+    </named-native-query>
+
+    <named-native-query name="ScoreFactor.findWeightedBySystemID" result-class="edu.njit.fms.db.entity.ScoreFactor">
+        <query>
+            SELECT
+                F.SystemID, 
+                F.Cat_ID, 
+                F.Factor_ID, 
+                F.Factor_Description, 
+                ROUND((CAST((( F.Weight / 100 ) * C.weight) AS DECIMAL(10,2)))/25,2) * 25 AS Weight,  
+                F.DispPosition, 
+                F.DispText, 
+                f.IsActive
+            FROM
+            	scrfactor F
+            INNER JOIN scrcategory C ON F.Cat_ID = C.Cat_ID and F.SystemID = C.SystemID
+            WHERE
+            	F.systemid=?1
+        </query>
+    </named-native-query>
+
+    <named-native-query name="CdpProjects.getProjectsUnscoredByScoreSystem" result-class="edu.njit.fms.db.entity.CdpProjects">
+        <query>
+            SELECT
+            	P.*
+            FROM
+            	CDP_PROJECTS P 
+            		LEFT JOIN (	SELECT DISTINCT
+            						DBNUM,
+            						SCR_SYSTEM_ID 
+            					FROM
+            						SCR_CDP_PROJECT 
+            					WHERE
+            						SCR_SYSTEM_ID = ?1 ) SCR 
+            		ON P.DBNUM = SCR.DBNUM 
+            WHERE
+            	SCR.SCR_SYSTEM_ID IS NULL
+        </query>
+    </named-native-query>
+    <named-native-query name="CdpProjects.getProjectsByDBNUMList" result-class="edu.njit.fms.db.entity.CdpProjects">
+        <query>
+            <![CDATA[ 
+                SELECT 
+                    *
+                FROM
+                    CDP_PROJECTS
+                WHERE
+                    DBNUM IN ?1
+            ]]>
+        </query>
+    </named-native-query>
+
+    <named-native-query name = "ScoreProject.rowExists" >
+            <query>
+                    SELECT COUNT(1) FROM scrproject WHERE Year = ?1 and DBNUM = ?2
+            </query>
+    </named-native-query>
+
+    <named-native-query name="ComputedSegmentScoreManagementData.getSegmentScoreManagementData" result-class="edu.njit.fms.db.entity.ComputedSegmentScoreManagementData">
+        <!-- This query is no longer being used. It got data for a single DBNUM only. -->
+        <query>
+            <![CDATA[ 
+                SELECT
+                    D3.MP_START_SEG,
+                    D3.MP_END_SEG,
+                    D3.TOTAL_COUNT_LT,
+                    D3.CR_LT,
+                    D3.SEVERITY,
+                    D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                    D3.INTERMODAL,
+                    D3.NJ_ACCESS,
+                    D3.NHS,
+                    D3.MEAN_TT,
+                    D3.TT95,
+                    D3.TTTR,
+                    D3.OVERWEIGHT,
+                    D3.LT_PERC_STIP,
+                    Round(SUM(D3.WeightedScore),4) AS TOTAL_SCORE,
+                    D3.SRI 
+                FROM
+                    (  SELECT
+                        D1.Factor_Description,
+                        D2.DBNUM_SEG,
+                        D2.MP_START_SEG,
+                        D2.MP_END_SEG,
+                        D2.TOTAL_COUNT,
+                        D2.TOTAL_CR,
+                        D2.TOTAL_COUNT_LT,
+                        D2.CR_LT,
+                        D2.SEVERITY,
+                        D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                        D2.INTERMODAL,
+                        D2.NJ_ACCESS,
+                        D2.NHS,
+                        D2.MEAN_TT,
+                        D2.TT95,
+                        D2.TTTR,
+                        D2.OVERWEIGHT,
+                        D2.CR_SCR_STIP,
+                        D2.SEV_SCR_STIP,
+                        D2.NHS_SCR_STIP,
+                        D2.NJ_ACCESS_SCR_STIP,
+                        D2.INTERMODAL_SCR_STIP,
+                        D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                        D2.LT_SCR_STIP,
+                        D2.OVERWEIGHT_SCR_STIP,
+                        D2.TTTR_SCR_STIP,
+                        D2.LT_PERC_STIP,
+                        D1.WeightedScore,
+                        D2.SRI 
+                    FROM
+                        (  SELECT
+                                DISTINCT S2.DBNUM,
+                                S2.SYSTEMID,
+                                S1.Factor_Description,
+                                S1.Weight,
+                                S3.start_range,
+                                S3.end_range,
+                                S3.score,
+                                (S1.Weight/100)* S3.score AS WeightedScore 
+                            FROM
+                                scrfactor S1 
+                                JOIN decision_variable_score_range S3
+                                ON S1.Factor_Description = Mode 
+                                JOIN scrproject S2 
+                                ON S2.SystemID = S1.SystemID 
+                            WHERE DBNUM = ?1 
+                            GROUP BY S1.Factor_Description, S2.DBNUM, S2.SYSTEMID, S1.Weight,
+                                S3.start_range, S3.end_range, S3.score
+                                ) D1,
+                        (  SELECT
+                                T2.DBNUM AS DBNUM_SEG,
+                                T2.M_POSTS_FROM AS MP_START_SEG,
+                                T2.M_POSTS_TO AS MP_END_SEG,
+                                T2.TOTAL_COUNT,
+                                T2.TOTAL_CR,
+                                T2.TOTAL_COUNT_LT,
+                                T2.CR_LT,
+                                T2.SEVERITY,
+                                T2.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                                T2.INTERMODAL,
+                                T2.NJ_ACCESS,
+                                T2.NHS,
+                                T2.MEAN_TT,
+                                T2.TT95,
+                                T2.TTTR,
+                                T2.OVERWEIGHT,
+                                CONVERT(FLOAT,T2.CR_SCR) AS CR_SCR_STIP,
+                                CONVERT(FLOAT,T2.SEV_SCR) AS SEV_SCR_STIP,
+                                CONVERT(FLOAT,T2.NHS_SCR) AS NHS_SCR_STIP,
+                                CONVERT(FLOAT,T2.NJ_ACCESS_SCR) AS NJ_ACCESS_SCR_STIP,
+                                CONVERT(FLOAT,T2.INTERMODAL_SCR) AS INTERMODAL_SCR_STIP,
+                                CONVERT(FLOAT,T2.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR) AS NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                                CONVERT(FLOAT,T2.LT_SCR) AS LT_SCR_STIP,
+                                CONVERT(FLOAT,T2.OVERWEIGHT_SCR) AS OVERWEIGHT_SCR_STIP,
+                                CONVERT(FLOAT,T2.TTTR_SCR) AS TTTR_SCR_STIP,
+                                CONVERT(FLOAT,T2.LT_PERC) AS LT_PERC_STIP,
+                                T2.SRI 
+                            FROM
+                                (  SELECT
+                                    ROUTE ,
+                                    DBNUM,
+                                    DBNUM2,
+                                    M_POSTS_FROM,
+                                    M_POSTS_TO,
+                                    NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT AS NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                                    INTERMODAL_SEGMENT AS INTERMODAL,
+                                    LARGE_TRUCK_PERC_SEGMENT AS LT_PERC,
+                                    LARGE_TRUCK_CRASH_RATE_SEGMENT AS CRASH_RATE,
+                                    SEVERITY_SEGMENT AS SEVERITY,
+                                    NHS_SEGMENT AS NHS,
+                                    TTTR_SEGMENT AS TTTR,
+                                    OVERWEIGHT_PERMIT AS OVERWEIGHT,
+                                    CRASH_RATE_SCORE AS CR_SCR,
+                                    SEVERITY_SCORE AS SEV_SCR,
+                                    NHS_SCORE AS NHS_SCR,
+                                    NJ_ACCESS_SCORE AS NJ_ACCESS_SCR,
+                                    INTERMODAL_SCORE AS INTERMODAL_SCR,
+                                    NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT AS NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR,
+                                    LARGE_TRUCK_SCORE AS LT_SCR,
+                                    OVERWEIGHT_SCORE AS OVERWEIGHT_SCR,
+                                    TTTR_SEGMENT AS TTTR_SCR,
+                                    TOTAL_COUNT AS TOTAL_COUNT,
+                                    CR AS TOTAL_CR,
+                                    TCOUNTLT AS TOTAL_COUNT_LT,
+                                    LARGE_TRUCK_CRASH_RATE_SEGMENT AS CR_LT,
+                                    MEAN_TRAVEL_TIME_SEGMENT AS MEAN_TT,
+                                    TT95_SEGMENT AS TT95,
+                                    CONVERT(FLOAT,NJ_ACCESS_SEGMENT) AS NJ_ACCESS,
+                                    DBNUM2 AS SRI 
+                                FROM fms_segment 
+                                WHERE DBNUM2 = ?2 AND M_POSTS_FROM >= ?3 AND M_POSTS_TO <= ?4
+                                    ) T2 
+                                )D2 
+                    WHERE
+                        (((D2.OVERWEIGHT BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'OVERWEIGHT TRUCK PERMITS') OR
+                        ((D2.SEVERITY BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'LARGE TRUCK SEVERITY RATE') OR
+                        ((D2.CR_LT BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'LARGE TRUCK CRASH RATE') OR
+                        ((D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'NATIONAL HIGHWAY FREIGHT NETWORK') OR
+                        ((D2.NHS BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'National Highway Network') OR
+                        ((D2.NJ_ACCESS BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'New Jersey Access Network') OR
+                        ((D2.INTERMODAL BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'Intermodal Connector') OR
+                        ((D2.LT_PERC_STIP BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'Percentage of Large Truck Volume') OR
+                        ((D2.TTTR BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'Truck Travel Time Reliability Index')) 
+                        )D3 
+                GROUP BY D3.MP_START_SEG, D3.MP_END_SEG, D3.TOTAL_COUNT_LT, D3.CR_LT, D3.SEVERITY,
+                    D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK, D3.INTERMODAL, D3.NJ_ACCESS, D3.NHS,
+                    D3.MEAN_TT, D3.TT95, D3.TTTR, D3.OVERWEIGHT, D3.LT_PERC_STIP, D3.SRI 
+                ORDER BY MP_START_SEG, MP_END_SEG
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="ComputedSegmentScoreManagementData.getSegmentScoreManagementDataForDBNUMs" result-class="edu.njit.fms.db.entity.ComputedSegmentScoreManagementData">
+        <query>
+            <![CDATA[ 
+            SELECT
+            D3.ROUTE,
+            D3.DBNUM,
+            D3.MP_START_SEG,
+            D3.MP_END_SEG,
+            D3.TOTAL_COUNT_LT,
+            D3.CR_LT,
+            D3.SEVERITY,
+            D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+            D3.INTERMODAL,
+            D3.NJ_ACCESS,
+            D3.NHS,
+            D3.MEAN_TT,
+            D3.TT95,
+            D3.TTTR,
+            D3.OVERWEIGHT,
+            D3.LT_PERC_STIP,
+            Round(SUM(D3.WeightedScore),4) AS TOTAL_SCORE,
+            D3.SRI
+        FROM
+            (  SELECT
+                D2.ROUTE,
+                D1.DBNUM,
+                D1.Factor_Description,
+                D2.DBNUM_SEG,
+                D2.MP_START_SEG,
+                D2.MP_END_SEG,
+                D2.TOTAL_COUNT,
+                D2.TOTAL_CR,
+                D2.TOTAL_COUNT_LT,
+                D2.CR_LT,
+                D2.SEVERITY,
+                D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                D2.INTERMODAL,
+                D2.NJ_ACCESS,
+                D2.NHS,
+                D2.MEAN_TT,
+                D2.TT95,
+                D2.TTTR,
+                D2.OVERWEIGHT,
+                D2.CR_SCR_STIP,
+                D2.SEV_SCR_STIP,
+                D2.NHS_SCR_STIP,
+                D2.NJ_ACCESS_SCR_STIP,
+                D2.INTERMODAL_SCR_STIP,
+                D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                D2.LT_SCR_STIP,
+                D2.OVERWEIGHT_SCR_STIP,
+                D2.TTTR_SCR_STIP,
+                D2.LT_PERC_STIP,
+                D1.WeightedScore,
+                D2.SRI
+            FROM
+                (  SELECT S1.DBNUM, S1.SystemID, S2.Factor_Description, S2.Weight, S3.start_range,
+                            S3.end_range, S3.score, (S2.Weight/100)* S3.score AS WeightedScore
+                    FROM scrproject S1, scrfactor S2, decision_variable_score_range S3, CDP_PROJECTS S4
+                    WHERE S1.DBNUM IN ?1 AND
+                        S1.SystemID = S2.SystemID
+                        AND S1.Cat_ID = S2.Cat_ID
+                        AND S1.Factor_ID = S2.Factor_ID
+                        AND S2.Factor_Description = S3.Mode
+                        AND S1.DBNUM = S4.DBNUM
+                        ) D1,
+                (  SELECT
+                        T2.ROUTE,
+                        T2.DBNUM AS DBNUM_SEG,
+                        T2.M_POSTS_FROM AS MP_START_SEG,
+                        T2.M_POSTS_TO AS MP_END_SEG,
+                        T2.TOTAL_COUNT,
+                        T2.TOTAL_CR,
+                        T2.TOTAL_COUNT_LT,
+                        T2.CR_LT,
+                        T2.SEVERITY,
+                        T2.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                        T2.INTERMODAL,
+                        T2.NJ_ACCESS,
+                        T2.NHS,
+                        T2.MEAN_TT,
+                        T2.TT95,
+                        T2.TTTR,
+                        T2.OVERWEIGHT,
+                        CONVERT(FLOAT,T2.CR_SCR) AS CR_SCR_STIP,
+                        CONVERT(FLOAT,T2.SEV_SCR) AS SEV_SCR_STIP,
+                        CONVERT(FLOAT,T2.NHS_SCR) AS NHS_SCR_STIP,
+                        CONVERT(FLOAT,T2.NJ_ACCESS_SCR) AS NJ_ACCESS_SCR_STIP,
+                        CONVERT(FLOAT,T2.INTERMODAL_SCR) AS INTERMODAL_SCR_STIP,
+                        CONVERT(FLOAT,T2.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR) AS NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                        CONVERT(FLOAT,T2.LT_SCR) AS LT_SCR_STIP,
+                        CONVERT(FLOAT,T2.OVERWEIGHT_SCR) AS OVERWEIGHT_SCR_STIP,
+                        CONVERT(FLOAT,T2.TTTR_SCR) AS TTTR_SCR_STIP,
+                        CONVERT(FLOAT,T2.LT_PERC) AS LT_PERC_STIP,
+                        T2.SRI
+                    FROM
+                        (  SELECT
+                            a1.ROUTE ,
+                            a2.DBNUM,
+                            a1.DBNUM2,
+                            a1.M_POSTS_FROM,
+                            a1.M_POSTS_TO,
+                            a1.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT AS NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                            a1.INTERMODAL_SEGMENT AS INTERMODAL,
+                            a1.LARGE_TRUCK_PERC_SEGMENT AS LT_PERC,
+                            a1.LARGE_TRUCK_CRASH_RATE_SEGMENT AS CRASH_RATE,
+                            a1.SEVERITY_SEGMENT AS SEVERITY,
+                            a1.NHS_SEGMENT AS NHS,
+                            a1.TTTR_SEGMENT AS TTTR,
+                            a1.OVERWEIGHT_PERMIT AS OVERWEIGHT,
+                            a1.CRASH_RATE_SCORE AS CR_SCR,
+                            a1.SEVERITY_SCORE AS SEV_SCR,
+                            a1.NHS_SCORE AS NHS_SCR,
+                            a1.NJ_ACCESS_SCORE AS NJ_ACCESS_SCR,
+                            a1.INTERMODAL_SCORE AS INTERMODAL_SCR,
+                            a1.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT AS NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR,
+                            a1.LARGE_TRUCK_SCORE AS LT_SCR,
+                            a1.OVERWEIGHT_SCORE AS OVERWEIGHT_SCR,
+                            a1.TTTR_SEGMENT AS TTTR_SCR,
+                            a1.TOTAL_COUNT AS TOTAL_COUNT,
+                            a1.CR AS TOTAL_CR,
+                            a1.TCOUNTLT AS TOTAL_COUNT_LT,
+                            a1.LARGE_TRUCK_CRASH_RATE_SEGMENT AS CR_LT,
+                            a1.MEAN_TRAVEL_TIME_SEGMENT AS MEAN_TT,
+                            a1.TT95_SEGMENT AS TT95,
+                            CONVERT(FLOAT,a1.NJ_ACCESS_SEGMENT) AS NJ_ACCESS,
+                            a1.DBNUM2 AS SRI
+                        FROM fms_segment a1, CDP_PROJECTS a2
+                        WHERE a1.DBNUM2 = a2.SRI 
+                                AND ((FLOOR(a1.M_POSTS_FROM*10)/10 <= FLOOR(a2.MP_START*10)/10 AND FLOOR(a1.M_POSTS_TO*10)/10 >= (CASE WHEN A2.MP_START = a2.MP_END THEN A2.MP_END + 0.1 ELSE CEILING(A2.MP_END*10)/10 END)) 
+                                OR  (FLOOR(a1.M_POSTS_FROM*10)/10 >= FLOOR(a2.MP_START*10)/10 AND FLOOR(a1.M_POSTS_TO*10)/10 <= (CASE WHEN A2.MP_START = a2.MP_END THEN A2.MP_END + 0.1 ELSE CEILING(A2.MP_END*10)/10 END)))
+                        /* WHERE a1.DBNUM2 = a2.SRI                           
+                            AND ((a1.M_POSTS_FROM <= a2.MP_START
+                            AND a1.M_POSTS_TO >= a2.MP_START )
+                            OR (a1.M_POSTS_FROM >= a2.MP_START
+                            AND a1.M_POSTS_TO <= a2.MP_END )
+                            OR (a1.M_POSTS_FROM <= a2.MP_END
+                            AND a2.MP_END <= a1.M_POSTS_TO)) */
+
+                            ) T2
+                        )D2
+            WHERE D1.DBNUM = D2.DBNUM_SEG AND
+                (((D2.OVERWEIGHT BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'OVERWEIGHT TRUCK PERMITS') OR
+                ((D2.SEVERITY BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'LARGE TRUCK SEVERITY RATE') OR
+                ((D2.CR_LT BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'LARGE TRUCK CRASH RATE') OR
+                ((D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'NATIONAL HIGHWAY FREIGHT NETWORK') OR
+                ((D2.NHS BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'National Highway Network') OR
+                ((D2.NJ_ACCESS BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'New Jersey Access Network') OR
+                ((D2.INTERMODAL BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'Intermodal Connector') OR
+                ((D2.LT_PERC_STIP BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'Percentage of Large Truck Volume') OR
+                ((D2.TTTR BETWEEN D1.start_range AND D1.end_range) AND D1.Factor_Description = 'Truck Travel Time Reliability Index'))
+                )D3
+        GROUP BY D3.ROUTE,D3.DBNUM,D3.MP_START_SEG, D3.MP_END_SEG, D3.TOTAL_COUNT_LT, D3.CR_LT, D3.SEVERITY,
+            D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK, D3.INTERMODAL, D3.NJ_ACCESS, D3.NHS,
+            D3.MEAN_TT, D3.TT95, D3.TTTR, D3.OVERWEIGHT, D3.LT_PERC_STIP, D3.SRI
+        ORDER BY D3.DBNUM, D3.MP_START_SEG, D3.MP_END_SEG
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="ComputedSegmentScoreManagementData.getCombinedReportScoreManagementData" result-class="edu.njit.fms.db.entity.ComputedSegmentScoreManagementData">
+        <query>
+            <![CDATA[ 
+                SELECT
+                    D3.ROUTE,
+                    D3.DBNUM,
+                    D3.MP_START_SEG,
+                    D3.MP_END_SEG,
+                    D3.TOTAL_COUNT_LT,
+                    D3.CR_LT,
+                    D3.SEVERITY,
+                    D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                    D3.INTERMODAL,
+                    D3.NJ_ACCESS,
+                    D3.NHS,
+                    D3.MEAN_TT,
+                    D3.TT95,
+                    D3.TTTR,
+                    D3.OVERWEIGHT,
+                    D3.LT_PERC_STIP,
+                    Round(SUM(D3.WeightedScore),4) AS TOTAL_SCORE,
+                    D3.SRI 
+                FROM
+                    ( SELECT
+                        D2.ROUTE,
+                        D1.DBNUM,
+                        D1.Factor_Description,
+                        D2.DBNUM_SEG,
+                        D2.MP_START_SEG,
+                        D2.MP_END_SEG,
+                        D2.TOTAL_COUNT,
+                        D2.TOTAL_CR,
+                        D2.TOTAL_COUNT_LT,
+                        D2.CR_LT,
+                        D2.SEVERITY,
+                        D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                        D2.INTERMODAL,
+                        D2.NJ_ACCESS,
+                        D2.NHS,
+                        D2.MEAN_TT,
+                        D2.TT95,
+                        D2.TTTR,
+                        D2.OVERWEIGHT,
+                        D2.CR_SCR_STIP,
+                        D2.SEV_SCR_STIP,
+                        D2.NHS_SCR_STIP,
+                        D2.NJ_ACCESS_SCR_STIP,
+                        D2.INTERMODAL_SCR_STIP,
+                        D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                        D2.LT_SCR_STIP,
+                        D2.OVERWEIGHT_SCR_STIP,
+                        D2.TTTR_SCR_STIP,
+                        D2.LT_PERC_STIP,
+                        D1.WeightedScore,
+                        D2.SRI
+                    FROM
+                        (SELECT
+                            S1.DBNUM,
+                            s4.SRI,
+                            s4.MP_START,
+                            s4.MP_END,
+                            S1.SystemID,
+                            S2.Factor_Description,
+                            S2.Weight,
+                            S3.start_range,
+                            S3.end_range,
+                            S3.score,
+                            (S2.Weight/100)* S3.score AS WeightedScore
+                        FROM
+                            scrproject S1,
+                            scrfactor S2,
+                            decision_variable_score_range S3,
+                            CUSTOMPROJECTS S4
+                        WHERE
+                            S1.DBNUM = ?1
+                            AND S1.SystemID = S2.SystemID
+                            AND S1.Cat_ID = S2.Cat_ID
+                            AND S1.Factor_ID = S2.Factor_ID
+                            AND S2.Factor_Description = S3.Mode
+                            AND S1.DBNUM = S4.DBNUM ) D1,
+                        ( SELECT
+                            a1.ROUTE ,
+                            a2.DBNUM                                                   AS DBNUM_SEG,
+                            a1.DBNUM2,
+                            a1.M_POSTS_FROM                                            AS MP_START_SEG,
+                            a1.M_POSTS_TO                                              AS MP_END_SEG,
+                            a1.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT                AS NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                            a1.INTERMODAL_SEGMENT                                      AS INTERMODAL,
+                            CONVERT(FLOAT,a1.LARGE_TRUCK_PERC_SEGMENT)                 AS LT_PERC_STIP,
+                            a1.LARGE_TRUCK_CRASH_RATE_SEGMENT                          AS CRASH_RATE,
+                            a1.SEVERITY_SEGMENT                                        AS SEVERITY,
+                            a1.NHS_SEGMENT                                             AS NHS,
+                            a1.TTTR_SEGMENT                                            AS TTTR,
+                            a1.OVERWEIGHT_PERMIT                                       AS OVERWEIGHT,
+                            CONVERT(FLOAT,a1.CRASH_RATE_SCORE)                         AS CR_SCR_STIP,
+                            CONVERT(FLOAT,a1.SEVERITY_SCORE)                           AS SEV_SCR_STIP,
+                            CONVERT(FLOAT,a1.NHS_SCORE)                                AS NHS_SCR_STIP,
+                            CONVERT(FLOAT,a1.NJ_ACCESS_SCORE)                          AS NJ_ACCESS_SCR_STIP,
+                            CONVERT(FLOAT,a1.INTERMODAL_SCORE)                         AS INTERMODAL_SCR_STIP,
+                            CONVERT(FLOAT,a1.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT) AS NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                            CONVERT(FLOAT,a1.LARGE_TRUCK_SCORE)                        AS LT_SCR_STIP,
+                            CONVERT(FLOAT,a1.OVERWEIGHT_SCORE)                         AS OVERWEIGHT_SCR_STIP,
+                            CONVERT(FLOAT,a1.TTTR_SEGMENT)                             AS TTTR_SCR_STIP,
+                            a1.TOTAL_COUNT                                             AS TOTAL_COUNT,
+                            a1.CR                                                      AS TOTAL_CR,
+                            a1.TCOUNTLT                                                AS TOTAL_COUNT_LT,
+                            a1.LARGE_TRUCK_CRASH_RATE_SEGMENT                          AS CR_LT,
+                            a1.MEAN_TRAVEL_TIME_SEGMENT                                AS MEAN_TT,
+                            a1.TT95_SEGMENT                                            AS TT95,
+                            CONVERT(FLOAT,a1.NJ_ACCESS_SEGMENT)                        AS NJ_ACCESS,
+                            a1.DBNUM2                                                  AS SRI
+                        FROM
+                            fms_segment a1,
+                            customprojects a2
+                        WHERE
+                            a2.DBNUM = ?1
+                            AND a1.DBNUM2 = a2.SRI
+                            AND ((a2.MP_START <= a1.M_POSTS_FROM
+                            AND a2.MP_END > a1.M_POSTS_FROM)
+                            OR (a2.MP_START >= a1.M_POSTS_FROM
+                            AND a2.MP_END <= a1.M_POSTS_TO)
+                            OR (a2.MP_START < a1.M_POSTS_TO
+                            AND a1.M_POSTS_TO <= a2.MP_END) ) )D2
+                    WHERE
+                        D1.SRI = D2.SRI
+                        AND D1.DBNUM = D2.DBNUM_SEG
+                        AND (((D2.OVERWEIGHT BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'OVERWEIGHT TRUCK PERMITS')
+                        OR ((D2.SEVERITY BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'LARGE TRUCK SEVERITY RATE')
+                        OR ((D2.CR_LT BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'LARGE TRUCK CRASH RATE')
+                        OR ((D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'NATIONAL HIGHWAY FREIGHT NETWORK')
+                        OR ((D2.NHS BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'National Highway Network')
+                        OR ((D2.NJ_ACCESS BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'New Jersey Access Network')
+                        OR ((D2.INTERMODAL BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'Intermodal Connector')
+                        OR ((D2.LT_PERC_STIP BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'Percentage of Large Truck Volume')
+                        OR ((D2.TTTR BETWEEN D1.start_range
+                        AND D1.end_range)
+                        AND D1.Factor_Description = 'Truck Travel Time Reliability Index')) )D3
+                GROUP BY
+                    D3.ROUTE,
+                    D3.DBNUM,
+                    D3.MP_START_SEG,
+                    D3.MP_END_SEG,
+                    D3.TOTAL_COUNT_LT,
+                    D3.CR_LT,
+                    D3.SEVERITY,
+                    D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                    D3.INTERMODAL,
+                    D3.NJ_ACCESS,
+                    D3.NHS,
+                    D3.MEAN_TT,
+                    D3.TT95,
+                    D3.TTTR,
+                    D3.OVERWEIGHT,
+                    D3.LT_PERC_STIP,
+                    D3.SRI 
+                ORDER BY
+                    D3.DBNUM,
+                    D3.MP_START_SEG,
+                    D3.MP_END_SEG
+            ]]>
+        </query>
+    </named-native-query>
+
+    <!--> ScrCdpProjectRepository <-->
+    <named-native-query name="ScrCdpProject.getCriteriaMaximums">
+        <query>
+            <![CDATA[ 
+                select 
+                    max(OVERWEIGHT) as overweight,
+                    max(LT_PERC_STIP) as lt_perc_stip,
+                    max(SEVERITY) as severity,
+                    max(NATIONAL_HIGHWAY_FREIGHT_NETWORK) as national_highway_freight_network,
+                    max(INTERMODAL) as intermodal,
+                    max(NJ_ACCESS) as nj_access,
+                    max(NHS) as nhs,
+                    max(TTTR) as tttr,
+                    max(CR_LT) as cr_lt 
+                from 
+                    scr_cdp_project
+                where
+                    dbnum = ?1
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="ScrCdpProject.getIdByDBNUM">
+        <query>
+            <![CDATA[ 
+                select ID from [Trans_FMS2].[dbo].[SCR_CDP_PROJECT]
+                where DBNUM = ?1
+            ]]>
+        </query>
+    </named-native-query>
+    <!--> ScrCdpProjectRepository END <-->
+
+    <named-native-query name="ScoreSegment.getCriteriaMaximums">
+        <query>
+            <![CDATA[ 
+                select 
+                    max(OVERWEIGHT) as overweight,
+                    max(LT_PERC_STIP) as lt_perc_stip,
+                    max(SEVERITY) as severity,
+                    max(NATIONAL_HIGHWAY_FREIGHT_NETWORK) as national_highway_freight_network,
+                    max(INTERMODAL) as intermodal,
+                    max(NJ_ACCESS) as nj_access,
+                    max(NHS) as nhs,
+                    max(TTTR) as tttr,
+                    max(CR_LT) as cr_lt 
+                from 
+                    scrsegment
+                where
+                    dbnum = ?1
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="CdpProjects.getProjectsWithScores"  result-class="edu.njit.fms.db.entity.UniqueCdpProjectsWithScores">
+        <query>
+            <![CDATA[ 
+                select
+                    c.*, 
+                    S.SystemId AS SYSTEM_ID,
+                    SCORE,
+                    scrsys.systemName AS system_name
+                from 
+                    CDP_PROJECTS C
+                LEFT JOIN (
+                    SELECT 
+                        SystemId, 
+                        SUM(SCORE) AS SCORE, 
+                        DBNUM 
+                    FROM 
+                        scrproject 
+                    WHERE 
+                        SystemID=?1 
+                    GROUP BY 
+                        SystemId,
+                        DBNUM
+                ) S 
+                ON C.DBNUM = S.DBNUM
+                LEFT JOIN scrsystem SCRSYS ON S.SystemID = SCRSYS.SystemID
+                WHERE c.USERNAME IN ?2
+                ORDER BY C.ID DESC
+            ]]>
+        </query>
+    </named-native-query>
+    <named-native-query name="CdpProjects.getProjectsWithScoresByDBNUM" result-class="edu.njit.fms.db.entity.CdpProjectsWithScore">
+        <query>
+            <![CDATA[ 
+                select
+                    c.*, 
+                    s.systemid as system_id , 
+                    SCORE,
+                    scrsys.SystemName as system_name
+                from 
+                    CDP_PROJECTS C
+                LEFT JOIN (
+                    SELECT 
+                        SystemId, 
+                        SUM(SCORE) AS SCORE, 
+                        DBNUM 
+                    FROM 
+                        scrproject 
+                    GROUP BY 
+                        SystemId,
+                        DBNUM
+                ) S 
+                ON C.DBNUM = S.DBNUM
+                LEFT JOIN scrsystem SCRSYS ON S.SystemID = SCRSYS.SystemID
+                WHERE 
+                    C.DBNUM=?1
+            ]]>
+        </query>
+    </named-native-query>
+
+    <named-native-query name="ScoreSystem.getMainSegmentData">
+        <query>
+            <![CDATA[ 
+            SELECT
+                D3.MP_START_SEG,
+                D3.MP_END_SEG,
+                D3.TOTAL_COUNT_LT,
+                D3.CR_LT,
+                D3.SEVERITY,
+                D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                D3.INTERMODAL,
+                D3.NJ_ACCESS,
+                D3.NHS,
+                D3.MEAN_TT,
+                D3.TT95,
+                D3.TTTR,
+                D3.OVERWEIGHT,
+                D3.LT_PERC_STIP,
+                Round(SUM(D3.WeightedScore),4) AS TOTAL_SCORE,
+                D3.SRI 
+            FROM
+                (	SELECT
+                        D1.Factor_Description,
+                        D2.DBNUM_SEG,
+                        D2.MP_START_SEG,
+                        D2.MP_END_SEG,
+                        D2.TOTAL_COUNT,
+                        D2.TOTAL_CR,
+                        D2.TOTAL_COUNT_LT,
+                        D2.CR_LT,
+                        D2.SEVERITY,
+                        D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                        D2.INTERMODAL,
+                        D2.NJ_ACCESS,
+                        D2.NHS,
+                        D2.MEAN_TT,
+                        D2.TT95,
+                        D2.TTTR,
+                        D2.OVERWEIGHT,
+                        D2.CR_SCR_STIP,
+                        D2.SEV_SCR_STIP,
+                        D2.NHS_SCR_STIP,
+                        D2.NJ_ACCESS_SCR_STIP,
+                        D2.INTERMODAL_SCR_STIP,
+                        D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                        D2.LT_SCR_STIP,
+                        D2.OVERWEIGHT_SCR_STIP,
+                        D2.TTTR_SCR_STIP,
+                        D2.LT_PERC_STIP,
+                        D1.WeightedScore,
+                        D2.SRI 
+                    FROM
+                        (	SELECT
+                                * 
+                            FROM
+                                (	SELECT
+                                        DISTINCT S2.DBNUM,
+                                        S2.SYSTEMID,
+                                        S1.Factor_Description,
+                                        S1.Weight,
+                                        start_range,
+                                        end_range,
+                                        dvsr.score,
+                                        (S1.Weight/100)*dvsr.score AS WeightedScore 
+                                    FROM
+                                        scrfactor S1 
+                                        JOIN decision_variable_score_range DVSR
+                                        ON S1.Factor_Description = Mode 
+                                        JOIN scrproject S2 
+                                        ON S2.SystemID = S1.SystemID 
+                                    WHERE
+                                        DBNUM = ?1 
+                                    GROUP BY
+                                        S1.Factor_Description,
+                                        S2.DBNUM,
+                                        S2.SYSTEMID,
+                                        S1.Weight,
+                                        start_range,
+                                        end_range,
+                                        dvsr.score) T2 ) D1,
+                        (	SELECT
+                                T2.DBNUM                                               AS 
+                                DBNUM_SEG,
+                                T2.M_POSTS_FROM                                        AS 
+                                MP_START_SEG,
+                                T2.M_POSTS_TO                                          AS 
+                                MP_END_SEG,
+                                T2.TOTAL_COUNT,
+                                T2.TOTAL_CR,
+                                T2.TOTAL_COUNT_LT,
+                                T2.CR_LT,
+                                T2.SEVERITY,
+                                T2.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                                T2.INTERMODAL,
+                                T2.NJ_ACCESS,
+                                T2.NHS,
+                                T2.MEAN_TT,
+                                T2.TT95,
+                                T2.TTTR,
+                                T2.OVERWEIGHT,
+                                CONVERT(FLOAT,T2.CR_SCR)                               AS 
+                                CR_SCR_STIP,
+                                CONVERT(FLOAT,T2.SEV_SCR)                              AS 
+                                SEV_SCR_STIP,
+                                CONVERT(FLOAT,T2.NHS_SCR)                              AS 
+                                NHS_SCR_STIP,
+                                CONVERT(FLOAT,T2.NJ_ACCESS_SCR)                         AS 
+                                NJ_ACCESS_SCR_STIP,
+                                CONVERT(FLOAT,T2.INTERMODAL_SCR)                       AS 
+                                INTERMODAL_SCR_STIP,
+                                CONVERT(FLOAT,T2.NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR) AS 
+                                NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR_STIP,
+                                CONVERT(FLOAT,T2.LT_SCR)                               AS 
+                                LT_SCR_STIP,
+                                CONVERT(FLOAT,T2.OVERWEIGHT_SCR)                       AS 
+                                OVERWEIGHT_SCR_STIP,
+                                CONVERT(FLOAT,T2.TTTR_SCR)                             AS 
+                                TTTR_SCR_STIP,
+                                CONVERT(FLOAT,T2.LT_PERC)                               AS 
+                                LT_PERC_STIP,
+                                T2.SRI 
+                            FROM
+                                (	SELECT
+                                        ROUTE ,
+                                        DBNUM,
+                                        DBNUM2,
+                                        M_POSTS_FROM,
+                                        M_POSTS_TO,
+                                        NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT AS 
+                                        NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                                        INTERMODAL_SEGMENT                        AS 
+                                        INTERMODAL,
+                                        LARGE_TRUCK_PERC_SEGMENT                  AS LT_PERC
+                                        ,
+                                        LARGE_TRUCK_CRASH_RATE_SEGMENT            AS 
+                                        CRASH_RATE,
+                                        SEVERITY_SEGMENT                          AS 
+                                        SEVERITY,
+                                        NHS_SEGMENT                              AS NHS,
+                                        TTTR_SEGMENT                              AS TTTR,
+                                        OVERWEIGHT_PERMIT                        AS 
+                                        OVERWEIGHT,
+                                        CRASH_RATE_SCORE                         AS CR_SCR,
+                                        SEVERITY_SCORE                            AS SEV_SCR
+                                        ,
+                                        NHS_SCORE                                AS NHS_SCR,
+                                        NJ_ACCESS_SCORE                           AS 
+                                        NJ_ACCESS_SCR,
+                                        INTERMODAL_SCORE                         AS 
+                                        INTERMODAL_SCR,
+                                        NATIONAL_HIGHWAY_FREIGHT_NETWORK_SEGMENT AS 
+                                        NATIONAL_HIGHWAY_FREIGHT_NETWORK_SCR,
+                                        LARGE_TRUCK_SCORE                         AS LT_SCR,
+                                        OVERWEIGHT_SCORE                          AS 
+                                        OVERWEIGHT_SCR,
+                                        TTTR_SEGMENT                              AS 
+                                        TTTR_SCR,
+                                        TOTAL_COUNT                              AS 
+                                        TOTAL_COUNT,
+                                        CR                                        AS 
+                                        TOTAL_CR,
+                                        TCOUNTLT                                  AS 
+                                        TOTAL_COUNT_LT,
+                                        LARGE_TRUCK_CRASH_RATE_SEGMENT           AS CR_LT,
+                                        MEAN_TRAVEL_TIME_SEGMENT                 AS MEAN_TT,
+                                        TT95_SEGMENT                             AS TT95,
+                                        CONVERT(FLOAT,NJ_ACCESS_SEGMENT)         AS 
+                                        NJ_ACCESS,
+                                        DBNUM2                                    AS SRI 
+                                    FROM
+                                        fms_segment 
+                                    WHERE
+                                    DBNUM2 = ?2 AND ((?3 <= M_POSTS_FROM  AND ?4 > M_POSTS_FROM) OR (?3 >= M_POSTS_FROM AND ?4 <= M_POSTS_TO) OR (?3 < M_POSTS_TO AND M_POSTS_TO <= ?4))) T2 )D2 
+                    WHERE
+                        (((D2.OVERWEIGHT BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'OVERWEIGHT TRUCK PERMITS') OR
+                        ((D2.SEVERITY BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'LARGE TRUCK SEVERITY RATE') OR
+                        ((D2.CR_LT BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'LARGE TRUCK CRASH RATE') OR
+                        ((D2.NATIONAL_HIGHWAY_FREIGHT_NETWORK BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'NATIONAL HIGHWAY FREIGHT NETWORK') OR
+                        ((D2.NHS BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'National Highway Network') OR
+                        ((D2.NJ_ACCESS BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'New Jersey Access Network') OR
+                        ((D2.INTERMODAL BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'Intermodal Connector') OR
+                        ((D2.LT_PERC_STIP BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'Percentage of Large Truck Volume') OR
+                        ((D2.TTTR BETWEEN D1.start_range AND
+                        D1.end_range) AND
+                        D1.Factor_Description = 'Truck Travel Time Reliability Index')) )D3 
+            GROUP BY
+                D3.MP_START_SEG,
+                D3.MP_END_SEG,
+                D3.TOTAL_COUNT_LT,
+                D3.CR_LT,
+                D3.SEVERITY,
+                D3.NATIONAL_HIGHWAY_FREIGHT_NETWORK,
+                D3.INTERMODAL,
+                D3.NJ_ACCESS,
+                D3.NHS,
+                D3.MEAN_TT,
+                D3.TT95,
+                D3.TTTR,
+                D3.OVERWEIGHT,
+                D3.LT_PERC_STIP,
+                D3.SRI 
+            ORDER BY
+                MP_START_SEG,
+                MP_END_SEG
+            ]]>
+        </query>
+    </named-native-query>
+
+    <named-native-query name="FmsStip.getLatLngFromSRIandMP"><!-- Map Image bounding box -->
+        <query>
+            <![CDATA[ 
+                SELECT 
+                    S_LAT,
+                    S_LON 
+                FROM 
+                    NJROADSTYPE12345SEG01 
+                WHERE 
+                    SRI LIKE :sri 
+                AND 
+                    (
+                        (:start_mp <= MP_START AND :end_mp > MP_START )
+                        OR
+                        (:start_mp >= MP_START  AND :end_mp <= MP_END)
+                        OR 
+                        (:start_mp < MP_END AND MP_END <= :end_mp)
+                    )
+            ]]>
+        </query>
+    </named-native-query>
+
+    <named-native-query name="FmsStip.getSelectedStipReport">
+        <query>
+            <![CDATA[ 
+            SELECT
+	T1.DBNUM,
+	T1.[Project Type],
+	T1.[Project Name],
+	T1.Description,
+	T1.Route,
+	T1.SRI,
+	T1.[Start MP],
+	T1.[End MP],
+	T1.MPO,
+	T1.[System Name],
+	T1.[Large Truck Severity Rate],
+	T1.[Overweight Truck Permits],
+	T1.[Percentage of Large Truck Volume],
+	T1.[Truck Travel Time Reliability Index],
+	T1.[National Highway Network],
+	T1.[Large Truck Crash Rate],
+	T1.[Intermodal Connector],
+	T1.[NJ Access Network],
+	T1.[National Highway Freight Network],
+	T1.[Total Score],
+	(
+	CASE 
+		WHEN T1.[Total Score] BETWEEN T2.Acceptable_Range_From AND
+		T2.Acceptable_Range_To 
+		THEN 'Acceptable' 
+		WHEN T1.[Total Score] BETWEEN T2.Low_Range_From AND
+		T2.Low_Range_To 
+		THEN 'Low Priority' 
+		WHEN T1.[Total Score] BETWEEN T2.Medium_Range_From AND
+		T2.Medium_Range_To 
+		THEN 'Medium Priority' 
+		WHEN T1.[Total Score] BETWEEN T2.High_Range_From AND
+		T2.High_Range_To 
+		THEN 'High Priority' 
+		ELSE ' ' 
+	END) AS Priority 
+FROM
+	(	SELECT
+			DISTINCT DBNUM,
+			CIS_PROGRAM_CATEGORY [Project Type],
+			PROJECT_NAME [Project Name],
+			DESCRIPT Description,
+			ROUTE Route,
+			SRI,
+			MP_FROM [Start MP],
+			MP_TO [End MP],
+			MPO,
+			SystemName [System Name],
+			SEV_SCR_STIP [Large Truck Severity Rate],
+			OVERWEIGHT_SCR_STIP [Overweight Truck Permits],
+			LT_PERC_STIP [Percentage of Large Truck Volume],
+			TTTRI_SCR_STIP [Truck Travel Time Reliability Index],
+			NHS_SCR_STIP [National Highway Network],
+			LT_SCR_STIP [Large Truck Crash Rate],
+			INTERMODAL_SCR_STIP [Intermodal Connector],
+			NJ_ACCESS_SCR_STIP [NJ Access Network],
+			NHFN_SCR_STIP [National Highway Freight Network],
+			TOTAL_SEG_SCR [Total Score] 
+		FROM
+			(	SELECT
+					T4.DBNUM,
+					t4.gis_url,
+					T4.SRI,
+					T4.MP_FROM,
+					T4.MP_TO,
+					T4.PROJECT_NAME,
+					T4.DESCRIPT,
+					T4.ROUTE,
+					T4.COUNTY,
+					T4.MUNC1,
+					T4.MPO,
+					T4.SystemName,
+					T4.PROGMANAG,
+					T4.SYSTEMID,
+					T4.CIS_PROGRAM_CATEGORY,
+					T4.CR_SCR_STIP,
+					T4.SEV_SCR_STIP,
+					t4.LT_PERC_STIP,
+					T4.NHS_SCR_STIP,
+					T4.NJ_ACCESS_SCR_STIP,
+					T4.INTERMODAL_SCR_STIP,
+					T4.NHFN_SCR_STIP,
+					T4.LT_SCR_STIP,
+					T4.OVERWEIGHT_SCR_STIP,
+					T4.TTTRI_SCR_STIP,
+					T4.TOTAL_SEG_SCR,
+					T5.MAX_TOTAL_SEG_SCR,
+					T5.AVG_TOTAL_SEG_SCR 
+				FROM
+					(	SELECT
+							T1.DBNUM,
+							GIS_URL,
+							T1.SRI,
+							T1.MP_FROM,
+							T1.MP_TO,
+							T1.PROJECT_NAME,
+							T1.DESCRIPT,
+							T1.ROUTE,
+							T1.COUNTY,
+							T1.CIS_PROGRAM_CATEGORY,
+							T1.MUNC1,
+							T1.SystemName,
+							T1.MPO,
+							T1.PROGMANAG,
+							T1.SYSTEMID,
+							CONVERT(FLOAT,T1.LT_PERC)                                                                                                                                                                                                                                                              
+							AS LT_PERC_STIP,
+							CONVERT(FLOAT,T1.CR_SCR)                                                                                                                                                                                                                                                               
+							AS CR_SCR_STIP,
+							CONVERT(FLOAT,T1.SEV_SCR)                                                                                                                                                                                                                                                              
+							AS SEV_SCR_STIP,
+							CONVERT(FLOAT,T1.NHS_SCR)                                                                                                                                                                                                                                                              
+							AS NHS_SCR_STIP,
+							CONVERT(FLOAT,T1.NJ_ACCESS_SCR)                                                                                                                                                                                                                                                        
+							AS NJ_ACCESS_SCR_STIP,
+							CONVERT(FLOAT,T1.INTERMODAL_SCR)                                                                                                                                                                                                                                                       
+							AS INTERMODAL_SCR_STIP,
+							CONVERT(FLOAT,T1.NHFN_SCR)                                                                                                                                                                                                                                                             
+							AS NHFN_SCR_STIP,
+							CONVERT(FLOAT,T1.LT_SCR)                                                                                                                                                                                                                                                               
+							AS LT_SCR_STIP,
+							CONVERT(FLOAT,T1.OVERWEIGHT_SCR)                                                                                                                                                                                                                                                       
+							AS OVERWEIGHT_SCR_STIP,
+							CONVERT(FLOAT,T1.TTTRI_SCR)                                                                                                                                                                                                                                                            
+							AS TTTRI_SCR_STIP,
+							(CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,T1.
+							NHS_SCR) + CONVERT(FLOAT ,T1.NJ_ACCESS_SCR) + 
+							CONVERT(FLOAT,T1.INTERMODAL_SCR) + CONVERT(FLOAT,T1. 
+							NHFN_SCR) + CONVERT(FLOAT,T1.LT_SCR) + CONVERT(FLOAT
+							, T1. OVERWEIGHT_SCR) + CONVERT(FLOAT,T1.TTTRI_SCR) 
+							+ CONVERT( FLOAT,T1.LT_PERC)) AS TOTAL_SEG_SCR 
+						FROM
+							(	SELECT
+									fms_stip.DBNUM,
+									GIS_URL,
+									SRI,
+									MP_FROM,
+									MP_TO,
+									PROJECT_NAME,
+									DESCRIPT,
+									CIS_PROGRAM_CATEGORY,
+									ROUTE,
+									COUNTY,
+									MUNC1,
+									MPO,
+									PROGMANAG,
+									F1.SYSTEMID,
+									MPO2                                     AS 
+									CR_SCR,
+									F1.[Large Truck Severity Rate]           AS 
+									SEV_SCR,
+									F1.[Percentage of Large Truck Volume]    AS 
+									LT_PERC,
+									F1.[National Highway Network]            AS 
+									NHS_SCR,
+									F1.[New Jersey Access Network]           AS 
+									NJ_ACCESS_SCR,
+									F1.[Intermodal Connector]                AS 
+									INTERMODAL_SCR,
+									F1.[National Highway Freight Network]    AS 
+									NHFN_SCR ,
+									F1.[Large Truck Crash Rate]              AS 
+									LT_SCR,
+									F1.[Overweight Truck Permits]            AS 
+									OVERWEIGHT_SCR,
+									F1.[Truck Travel Time Reliability Index] AS 
+									TTTRI_SCR,
+									F1.SystemName 
+								FROM
+									fms_stip 
+									JOIN (	SELECT
+												YEAR,
+												DBNUM,
+												SYSTEMID,
+												SystemName,
+												ISNULL([Large Truck Crash Rate],
+												0)                AS 
+												[Large Truck Crash Rate],
+												ISNULL(
+												[Large Truck Severity Rate],0)             
+												AS [Large Truck Severity Rate],
+												ISNULL(
+												[National Highway Network],0)              
+												AS [National Highway Network],
+												ISNULL(
+												[New Jersey Access Network],0)             
+												AS [New Jersey Access Network],
+												ISNULL([Intermodal Connector],0)                  
+												AS [Intermodal Connector],
+												ISNULL( 
+												[National Highway Freight Network]
+												,0)     AS 
+												[National Highway Freight Network]
+												,
+												ISNULL( 
+												[Percentage of Large Truck Volume]
+												,0)     AS 
+												[Percentage of Large Truck Volume]
+												,
+												ISNULL( 
+												[Truck Travel Time Reliability Index] 
+												,0) AS 
+												[Truck Travel Time Reliability Index]
+												,
+												ISNULL(
+												[Overweight Truck Permits],0)              
+												AS [Overweight Truck Permits] 
+											FROM
+												(	SELECT
+														YEAR,
+														dbnum,
+														systemid,
+														score,
+														factor_description,
+														systemname 
+													FROM
+														(	SELECT
+																p.*,
+																f.
+																Factor_Description
+																,
+																f.Weight,
+																systemname 
+															FROM
+																scrproject p 
+																JOIN scrfactor f 
+																ON p.SystemID = 
+																f. SystemID,
+																scrsystem x 
+															WHERE
+																x.systemID = p.
+																systemid AND
+																p.Cat_ID = f.
+																Cat_ID AND
+																p.Factor_ID = f. 
+																Factor_ID )i )p 
+												pivot ( SUM( score) FOR 
+												Factor_Description IN ( 
+												[Large Truck Crash Rate],
+												[Large Truck Severity Rate],
+												[National Highway Network],
+												[New Jersey Access Network],
+												[Intermodal Connector],
+												[National Highway Freight Network]
+												,
+												[Percentage of Large Truck Volume]
+												,
+												[Truck Travel Time Reliability Index]
+												,
+												[Overweight Truck Permits])) AS 
+												pvt) F1 
+									ON fms_stip.DBNUM = F1.DBNUM ) T1) T4,
+					(	SELECT
+							DISTINCT T3.DBNUM,
+							T3.SYSTEMID,
+							MAX(T3.TOTAL_SEG_SCR) AS MAX_TOTAL_SEG_SCR,
+							AVG(T3.TOTAL_SEG_SCR) AS AVG_TOTAL_SEG_SCR 
+						FROM
+							(	SELECT
+									T1.DBNUM,
+									T1.SRI,
+									T1.MP_FROM,
+									T1.MP_TO,
+									(CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,
+									T1. NHS_SCR) + CONVERT( FLOAT,T1.
+									NJ_ACCESS_SCR) + CONVERT(FLOAT,T1.
+									INTERMODAL_SCR) + CONVERT(FLOAT,T1. NHFN_SCR
+									) + CONVERT(FLOAT,T1.LT_SCR) + CONVERT ( 
+									FLOAT,T1.OVERWEIGHT_SCR) + CONVERT(FLOAT,T1. 
+									TTTRI_SCR ) + CONVERT(FLOAT,T1.LT_PERC)) AS 
+									TOTAL_SEG_SCR,
+									T1.SYSTEMID 
+								FROM
+									(	SELECT
+											fms_stip.DBNUM,
+											SRI,
+											MP_FROM,
+											MP_TO,
+											MPO2                                     
+											AS CR_SCR,
+											F3.[Large Truck Severity Rate]           
+											AS SEV_SCR,
+											F3.
+											[Percentage of Large Truck Volume]    
+											AS LT_PERC,
+											F3.[National Highway Network]            
+											AS NHS_SCR,
+											F3.[New Jersey Access Network]           
+											AS NJ_ACCESS_SCR,
+											F3.[Intermodal Connector]                
+											AS INTERMODAL_SCR,
+											F3.
+											[National Highway Freight Network]    
+											AS NHFN_SCR,
+											F3.[Large Truck Crash Rate]              
+											AS LT_SCR,
+											F3.[Overweight Truck Permits]            
+											AS OVERWEIGHT_SCR,
+											F3.
+											[Truck Travel Time Reliability Index] 
+											AS TTTRI_SCR,
+											PROGMANAG,
+											F3.SYSTEMID 
+										FROM
+											fms_stip 
+											JOIN (	SELECT
+														YEAR,
+														DBNUM,
+														SYSTEMID,
+														ISNULL(
+														[Large Truck Crash Rate]
+														, 0)                AS 
+														[Large Truck Crash Rate]
+														,
+														ISNULL( 
+														[Large Truck Severity Rate]
+														,0)             AS 
+														[Large Truck Severity Rate]
+														,
+														ISNULL( 
+														[National Highway Network]
+														,0)              AS 
+														[National Highway Network]
+														,
+														ISNULL( 
+														[New Jersey Access Network]
+														,0)             AS 
+														[New Jersey Access Network]
+														,
+														ISNULL(
+														[Intermodal Connector],0
+														)                   AS 
+														[Intermodal Connector],
+														ISNULL( 
+														[National Highway Freight Network] 
+														,0)     AS 
+														[National Highway Freight Network] 
+														,
+														ISNULL( 
+														[Percentage of Large Truck Volume] 
+														,0)     AS 
+														[Percentage of Large Truck Volume] 
+														,
+														ISNULL( 
+														[Truck Travel Time Reliability Index] 
+														,0 ) AS 
+														[Truck Travel Time Reliability Index] 
+														,
+														ISNULL( 
+														[Overweight Truck Permits]
+														,0)              AS 
+														[Overweight Truck Permits] 
+													FROM
+														(	SELECT
+																YEAR,
+																dbnum,
+																systemid,
+																score,
+																factor_description 
+															FROM
+																(	SELECT
+																		p.*,
+																		f. 
+																		Factor_Description 
+																		,
+																		f.Weight 
+																	FROM
+																		scrproject 
+																		p 
+																		JOIN 
+																		scrfactor 
+																		f 
+																		ON p.
+																		SystemID 
+																		= f.
+																		SystemID 
+																	WHERE
+																		p.Cat_ID 
+																		= f. 
+																		Cat_ID 
+																		AND
+																		p.
+																		Factor_ID 
+																		= f. 
+																		Factor_ID 
+																)i)p pivot (SUM 
+														(score) FOR 
+														Factor_Description IN ( 
+														[Large Truck Crash Rate]
+														,
+														[Large Truck Severity Rate]
+														,
+														[National Highway Network]
+														,
+														[New Jersey Access Network]
+														,
+														[Intermodal Connector],
+														[National Highway Freight Network] 
+														,
+														[Percentage of Large Truck Volume] 
+														,
+														[Truck Travel Time Reliability Index] 
+														,
+														[Overweight Truck Permits]
+														)) AS pvt) F3 
+											ON fms_stip.DBNUM = F3.DBNUM ) T1) 
+							T3 
+						GROUP BY
+							T3.DBNUM,
+							T3.SYSTEMID) T5 
+				WHERE
+					T4.DBNUM = T5.DBNUM AND
+					T4.TOTAL_SEG_SCR = T5.MAX_TOTAL_SEG_SCR) T6 
+		WHERE
+			SRI IS NOT NULL AND
+			MP_TO != 0 
+    AND DBNUM IN :dbnums AND SystemID = :systemID
+     ) T1, priorityscrrange T2
+            ]]>
+        </query>
+    </named-native-query>
+    
+    <named-native-query name="Dashboard.getCrashesForExcelReport">
+        <query>
+            <![CDATA[
+                SELECT N.SRI, N.MP_START,(TotLT3year + TotOT3year) AS TOTAL
+                FROM [Trans_FMS2].[dbo].NJROADSTYPE12345SEG01 N
+                INNER JOIN Avg3yearCrashRate A ON N.SRI = A.SRI_ID AND N.MP_START = A.MP_START
+                WHERE DIRECTION =?2  AND SLD_NAME=?1
+                ORDER BY A.MP_START,DIRECTION, SLD_NAME
+            ]]> 
+        </query>
+    </named-native-query>
+    
+    <named-native-query name="Dashboard.getDetailedCrashesForExcelReport">
+        <query>
+            <![CDATA[
+                SELECT N.SRI, A.MP_START AS MILEPOST, TotLT3year,TotOT3year
+                FROM [Trans_FMS2].[dbo].NJROADSTYPE12345SEG01 N
+                INNER JOIN [Trans_FMS2].[dbo].Avg3yearCrashRate A ON N.SRI = A.SRI_ID AND N.MP_START = A.MP_START
+                WHERE DIRECTION =?2  AND SLD_NAME=?1
+                ORDER BY MILEPOST,DIRECTION, SLD_NAME
+            ]]> 
+        </query>
+    </named-native-query>
+    
+    <named-native-query name="Dashboard.getTruckVolumeForExcelReport">
+        <query>
+            <![CDATA[
+                SELECT  N.SRI, A.MP_START AS MILEPOST,trkvol
+                FROM [Trans_FMS2].[dbo].NJROADSTYPE12345SEG01 N,[Trans_FMS2].[dbo].[TMC_WITH_SPEED_ALL] T,Avg3yearCrashRate A
+                WHERE DIRECTION =?2  AND 
+                SLD_NAME=?1 AND
+                N.SRI = A.SRI_ID AND
+                N.MP_START = A.MP_START
+                ORDER BY A.MP_START,DIRECTION, SLD_NAME
+            ]]> 
+        </query>
+    </named-native-query>
+    <named-native-query name="CdpProjects.getCDPExcelReportData">
+        <query>
+            <![CDATA[
+            SELECT
+            T1.DBNUM,   
+            T1.[Project Name],   
+            T1.Route,
+            T1.SRI,
+            T1.[Start MP],
+            T1.[End MP],   
+            T1.[System Name],
+            T1.[Large Truck Severity Rate],
+            T1.[Overweight Truck Permits],
+            T1.[Percentage of Large Truck Volume],
+            T1.[Truck Travel Time Reliability Index],
+            T1.[National Highway Network],
+            T1.[Large Truck Crash Rate],
+            T1.[Intermodal Connector],
+            T1.[NJ Access Network],
+            T1.[National Highway Freight Network],
+            T1.[Total Score],
+            (
+            CASE
+                WHEN T1.[Total Score] BETWEEN T2.Acceptable_Range_From AND T2.Acceptable_Range_To THEN 'Acceptable'
+                WHEN T1.[Total Score] BETWEEN T2.Low_Range_From AND T2.Low_Range_To THEN 'Low Priority'
+                WHEN T1.[Total Score] BETWEEN T2.Medium_Range_From AND T2.Medium_Range_To THEN 'Medium Priority'
+                WHEN T1.[Total Score] BETWEEN T2.High_Range_From AND T2.High_Range_To THEN 'High Priority'
+                ELSE ' '
+            END) AS Priority
+        FROM
+            (   SELECT
+                    DISTINCT DBNUM,           
+                    PROJECT_NAME [Project Name],           
+                    ROUTE Route,
+                    SRI,
+                    MP_START [Start MP],
+                    MP_END [End MP],          
+                    SystemName [System Name],
+                    SEV_SCR_STIP [Large Truck Severity Rate],
+                    OVERWEIGHT_SCR_STIP [Overweight Truck Permits],
+                    LT_PERC_STIP [Percentage of Large Truck Volume],
+                    TTTRI_SCR_STIP [Truck Travel Time Reliability Index],
+                    NHS_SCR_STIP [National Highway Network],
+                    LT_SCR_STIP [Large Truck Crash Rate],
+                    INTERMODAL_SCR_STIP [Intermodal Connector],
+                    NJ_ACCESS_SCR_STIP [NJ Access Network],
+                    NHFN_SCR_STIP [National Highway Freight Network],
+                    TOTAL_SEG_SCR [Total Score]
+                FROM
+                    (   SELECT
+                            T4.DBNUM,                    
+                            T4.SRI,
+                            T4.MP_START,
+                            T4.MP_END,
+                            T4.PROJECT_NAME,                   
+                            T4.ROUTE,                   
+                            T4.SystemName,                    
+                            T4.SYSTEMID,                   
+                            T4.SEV_SCR_STIP,
+                            t4.LT_PERC_STIP,
+                            T4.NHS_SCR_STIP,
+                            T4.NJ_ACCESS_SCR_STIP,
+                            T4.INTERMODAL_SCR_STIP,
+                            T4.NHFN_SCR_STIP,
+                            T4.LT_SCR_STIP,
+                            T4.OVERWEIGHT_SCR_STIP,
+                            T4.TTTRI_SCR_STIP,
+                            T4.TOTAL_SEG_SCR,
+                            T5.MAX_TOTAL_SEG_SCR,
+                            T5.AVG_TOTAL_SEG_SCR
+                        FROM
+                            (   SELECT
+                                    T1.DBNUM,                           
+                                    T1.SRI,
+                                    T1.MP_START,
+                                    T1.MP_END,
+                                    T1.PROJECT_NAME,                           
+                                    T1.ROUTE,
+                                    T1.SystemName,
+                                    T1.SYSTEMID,
+                                    CONVERT(FLOAT,T1.LT_PERC) AS LT_PERC_STIP,
+                                    CONVERT(FLOAT,T1.SEV_SCR) AS SEV_SCR_STIP,
+                                    CONVERT(FLOAT,T1.NHS_SCR) AS NHS_SCR_STIP,
+                                    CONVERT(FLOAT,T1.NJ_ACCESS_SCR) AS NJ_ACCESS_SCR_STIP,
+                                    CONVERT(FLOAT,T1.INTERMODAL_SCR) AS INTERMODAL_SCR_STIP,
+                                    CONVERT(FLOAT,T1.NHFN_SCR) AS NHFN_SCR_STIP,
+                                    CONVERT(FLOAT,T1.LT_SCR) AS LT_SCR_STIP,
+                                    CONVERT(FLOAT,T1.OVERWEIGHT_SCR) AS OVERWEIGHT_SCR_STIP,
+                                    CONVERT(FLOAT,T1.TTTRI_SCR) AS TTTRI_SCR_STIP,
+                                    (CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,T1.
+                                    NHS_SCR) + CONVERT(FLOAT ,T1.NJ_ACCESS_SCR) +
+                                    CONVERT(FLOAT,T1.INTERMODAL_SCR) + CONVERT(FLOAT,T1.
+                                    NHFN_SCR) + CONVERT(FLOAT,T1.LT_SCR) + CONVERT(FLOAT
+                                    , T1. OVERWEIGHT_SCR) + CONVERT(FLOAT,T1.TTTRI_SCR)
+                                    + CONVERT( FLOAT,T1.LT_PERC)) AS TOTAL_SEG_SCR
+                                FROM
+                                    (   SELECT
+                                             CP.DBNUM,
+                                            SRI,
+                                            MP_START,
+                                            MP_END,
+                                            PROJECT_NAME,
+                                            ROUTE,
+                                            F1.SYSTEMID,
+                                            F1.[Large Truck Severity Rate]           AS SEV_SCR,
+                                            F1.[Percentage of Large Truck Volume]    AS LT_PERC,
+                                            F1.[National Highway Network]            AS NHS_SCR,
+                                            F1.[New Jersey Access Network]           AS NJ_ACCESS_SCR,
+                                            F1.[Intermodal Connector]                AS INTERMODAL_SCR,
+                                            F1.[National Highway Freight Network]    AS NHFN_SCR ,
+                                            F1.[Large Truck Crash Rate]              AS LT_SCR,
+                                            F1.[Overweight Truck Permits]            AS OVERWEIGHT_SCR,
+                                            F1.[Truck Travel Time Reliability Index] AS TTTRI_SCR,
+                                            F1.SystemName
+                                        FROM
+                                            CDP_PROJECTS CP
+                                            JOIN (  SELECT
+                                                        YEAR,
+                                                       DBNUM,
+                                                        SYSTEMID,
+                                                        SystemName,
+                                                        ISNULL([Large Truck Crash Rate], 0) AS [Large Truck Crash Rate],
+                                                        ISNULL([Large Truck Severity Rate],0) AS [Large Truck Severity Rate],
+                                                        ISNULL([National Highway Network],0) AS [National Highway Network],
+                                                        ISNULL( [New Jersey Access Network],0) AS [New Jersey Access Network],
+                                                        ISNULL([Intermodal Connector],0) AS [Intermodal Connector],
+                                                        ISNULL( [National Highway Freight Network] ,0) AS [National Highway Freight Network],
+                                                        ISNULL([Percentage of Large Truck Volume],0) AS [Percentage of Large Truck Volume],
+                                                        ISNULL([Truck Travel Time Reliability Index],0) AS [Truck Travel Time Reliability Index],
+                                                        ISNULL([Overweight Truck Permits],0) AS [Overweight Truck Permits]
+                                                    FROM
+                                                        (   SELECT
+                                                                YEAR, dbnum,systemid, score, factor_description, systemname
+                                                                FROM
+                                                                (   SELECT p.*, f.Factor_Description, f.Weight, systemname
+                                                                        FROM scrproject p
+                                                                        JOIN scrfactor f ON p.SystemID = f. SystemID, scrsystem x
+                                                                        WHERE
+                                                                        x.systemID = p.systemid AND p.Cat_ID = f.Cat_ID AND p.Factor_ID = f.Factor_ID )i )p
+                                                        pivot ( SUM( score) FOR
+                                                        Factor_Description IN (
+                                                        [Large Truck Crash Rate],
+                                                        [Large Truck Severity Rate],
+                                                        [National Highway Network],
+                                                        [New Jersey Access Network],
+                                                        [Intermodal Connector],
+                                                        [National Highway Freight Network],
+                                                        [Percentage of Large Truck Volume],
+                                                        [Truck Travel Time Reliability Index],
+                                                        [Overweight Truck Permits])) AS
+                                                        pvt) F1
+                                            ON CP.DBNUM = F1.DBNUM ) T1) T4,
+                            (   SELECT DISTINCT T3.DBNUM, T3.SYSTEMID,
+                                    MAX(T3.TOTAL_SEG_SCR) AS MAX_TOTAL_SEG_SCR,
+                                    AVG(T3.TOTAL_SEG_SCR) AS AVG_TOTAL_SEG_SCR
+                                FROM
+                                    (   SELECT
+                                            T1.DBNUM,
+                                            T1.SRI,
+                                            T1.MP_START,
+                                            T1.MP_END,
+                                            (CONVERT(FLOAT,T1.SEV_SCR) + CONVERT(FLOAT,
+                                            T1. NHS_SCR) + CONVERT( FLOAT,T1.
+                                            NJ_ACCESS_SCR) + CONVERT(FLOAT,T1.
+                                            INTERMODAL_SCR) + CONVERT(FLOAT,T1. NHFN_SCR
+                                            ) + CONVERT(FLOAT,T1.LT_SCR) + CONVERT (
+                                            FLOAT,T1.OVERWEIGHT_SCR) + CONVERT(FLOAT,T1.
+                                            TTTRI_SCR ) + CONVERT(FLOAT,T1.LT_PERC)) AS
+                                            TOTAL_SEG_SCR,
+                                            T1.SYSTEMID
+                                        FROM
+                                            (   SELECT
+                                                    CP.DBNUM,
+                                                    CP.SRI,
+                                                    CP.ROUTE,
+                                                    CP.MP_START,
+                                                    CP.MP_END,
+                                                    CP.PROJECT_NAME,                                           
+                                                    F3.[Large Truck Severity Rate] AS SEV_SCR,
+                                                    F3.[Percentage of Large Truck Volume] AS LT_PERC,
+                                                    F3.[National Highway Network] AS NHS_SCR,
+                                                    F3.[New Jersey Access Network] AS NJ_ACCESS_SCR,
+                                                    F3.[Intermodal Connector] AS INTERMODAL_SCR,
+                                                    F3.[National Highway Freight Network] AS NHFN_SCR,
+                                                    F3.[Large Truck Crash Rate] AS LT_SCR,
+                                                    F3.[Overweight Truck Permits] AS OVERWEIGHT_SCR,
+                                                    F3.[Truck Travel Time Reliability Index] AS TTTRI_SCR,                                           
+                                                    F3.SYSTEMID
+                                                FROM
+                                                    CDP_PROJECTS CP
+                                                    JOIN (  SELECT
+                                                                YEAR,
+                                                                DBNUM,
+                                                                SYSTEMID,
+                                                                ISNULL([Large Truck Crash Rate], 0) AS [Large Truck Crash Rate],
+                                                                ISNULL([Large Truck Severity Rate],0) AS [Large Truck Severity Rate],
+                                                                ISNULL([National Highway Network],0) AS [National Highway Network],
+                                                                ISNULL([New Jersey Access Network],0) AS [New Jersey Access Network],
+                                                                ISNULL([Intermodal Connector],0) AS [Intermodal Connector],
+                                                                ISNULL([National Highway Freight Network],0) AS [National Highway Freight Network],
+                                                                ISNULL([Percentage of Large Truck Volume],0) AS [Percentage of Large Truck Volume],
+                                                                ISNULL([Truck Travel Time Reliability Index],0 ) AS[Truck Travel Time Reliability Index],
+                                                                ISNULL([Overweight Truck Permits],0) AS [Overweight Truck Permits]
+                                                            FROM
+                                                                (   SELECT
+                                                                        YEAR,
+                                                                        dbnum,
+                                                                        systemid,
+                                                                        score,
+                                                                        factor_description
+                                                                    FROM
+                                                                        (   SELECT
+                                                                                p.*,
+                                                                                f.Factor_Description,
+                                                                                f.Weight
+                                                                            FROM
+                                                                                scrproject p JOIN scrfactor f ON p.SystemID = f.SystemID
+                                                                            WHERE
+                                                                                p.Cat_ID = f.Cat_ID AND
+                                                                                p.Factor_ID = f.Factor_ID
+                                                                                AND P.DBNUM IN :dbnums AND P.SystemID = :systemID
+                                                                                 
+                                                                        )i)p pivot (SUM
+                                                                (score) FOR
+                                                                Factor_Description IN (
+                                                                [Large Truck Crash Rate],
+                                                                [Large Truck Severity Rate],
+                                                                [National Highway Network],
+                                                                [New Jersey Access Network],
+                                                                [Intermodal Connector],
+                                                                [National Highway Freight Network],
+                                                                [Percentage of Large Truck Volume],
+                                                                [Truck Travel Time Reliability Index],
+                                                                [Overweight Truck Permits]
+                                                                )) AS pvt) F3
+                                                    ON CP.DBNUM = F3.DBNUM ) T1)
+                                    T3
+                                GROUP BY
+                                    T3.DBNUM,
+                                    T3.SYSTEMID) T5
+                        WHERE
+                            T4.DBNUM = T5.DBNUM AND
+                            T4.TOTAL_SEG_SCR = T5.MAX_TOTAL_SEG_SCR) T6
+                WHERE
+                    SRI IS NOT NULL AND
+                    MP_END != 0   
+             ) T1, priorityscrrange T2
+            ]]>
+        </query>
+    </named-native-query>
+
+</entity-mappings>

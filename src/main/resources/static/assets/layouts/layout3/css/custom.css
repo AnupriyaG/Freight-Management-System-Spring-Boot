@@ -1,0 +1,297 @@
+/* here you can put your own css to customize and override the theme */
+/* display background image */
+body.page-md {
+    
+	background: url('interstate-80-sign.jpg') #2f2516 no-repeat;
+	-webkit-background-size: cover;
+  	-moz-background-size: cover;
+  	-o-background-size: cover;
+  	background-size: cover;
+  	
+  	position:absolute;z-index:0;left:0;top:0;width:100%;height:100%
+}
+.page-header {
+	background: transparent;
+	height: 100px;
+}
+.page-wrapper .page-wrapper-middle {
+    background: transparent;
+}
+.page-head {
+    background:  transparent;
+}
+
+.page-header .page-header-top .page-logo .logo-default {
+    margin: 0 0 0;
+}
+
+
+.page-header .page-header-top .page-logo {
+    float: left;
+    display: block;
+    width: 340px;
+    -height: 75px;
+}
+
+
+.breadcrumb {
+    color: #aaaaaa;
+}
+
+
+
+
+.page-head .page-title > h1 {
+    color: #ffffff;
+}
+
+
+li [class*=" fa-"]{
+	margin-right: -2px;
+}
+.page-header .page-header-top .top-menu .navbar-nav > li:hover {
+    background-color: transparent;
+}
+.page-header .page-header-top .top-menu .navbar-nav > li:focus {
+    background-color: transparent;
+}
+
+.page-header .page-header-top .top-menu .navbar-nav > li > i:hover {
+    color: #ffffff;
+}
+.page-header .page-header-top .top-menu .navbar-nav > li > i:focus {
+    color: #ffffff;
+}
+.nav > li > a:focus, .nav > li > a:hover {
+    text-decoration: none;
+    background-color: transparent;
+	color: #ffffff;
+}
+.navbar-nav > li > a {
+	padding-top: 15px;
+	color: #c1ccd1;
+	font-size: 1.15em;
+	font-weight: bold;
+}
+.navbar-nav > li > a:hover, .navbar-nav > li > a:focus {
+	text-decoration: none;
+    background-color: transparent;
+	color: #ffffff;
+}
+
+
+@media screen and (max-width:847px){
+	.page-header .top-menu{
+		_background-color: transparent;
+	} 
+	.page-header .page-header-top .top-menu {
+    _margin-top: -40px;
+		
+}
+
+}
+
+.page-header .page-header-menu {
+	height: 0px;
+}
+
+@media screen and (min-width: 992px){
+	.breadcrumb {
+    	margin-top: -40px !important;
+	}
+}
+
+@media screen and (max-width: 480px){
+.page-header .top-menu, .page-header .top-menu .navbar-nav > li.dropdown-user .dropdown-toggle, .page-header-fixed-mobile .page-header .top-menu {
+    background-color: rgba(0, 0, 0, 0.4);
+}
+	}
+
+
+
+
+
+.tile-bt-extralarge img {
+    margin: 0 auto 0 auto;
+    padding-bottom: 0px;
+    height: 48px;
+    width: 48px;
+    position: relative;
+    display: block;
+}
+
+
+
+.portlet.light {
+    padding: 12px 20px 15px;
+    background-color: rgba(255, 255, 255, 0.6);
+}
+
+	.well .control-label {
+		padding-top: 0px;}
+
+.btn:not(.md-skip):not(.bs-select-all):not(.bs-deselect-all) {
+	margin-bottom: 5px;}
+
+a {
+	color: #990000;
+}
+
+a:hover {
+    cursor: pointer;
+    color: #ff0000;
+}
+
+a:focus, a:hover {
+    color: #ff0000;
+    text-decoration: underline;
+}
+
+.blk a {
+	color: #ff9933;
+}
+
+.blk a:hover {
+    cursor: pointer;
+    color: #fbad5f;
+}
+
+.blk a:focus, .blk a:hover {
+    color: #fbad5f;
+    text-decoration: underline;
+}
+
+.om-itemlist [class*=" fa-"]:not(.fa-stack) {
+	line-height: 40px;
+	vertical-align: middle;
+	margin-left:8px;
+	margin-right: 8px;
+}
+.om-itemlist a {
+	color: #ffffff;
+}
+
+.om-itemlist a:hover {
+    cursor: pointer;
+    color: #ffffff;
+}
+
+.om-itemlist a:focus, .blk a:hover {
+    color: #ffffff;
+    text-decoration: none;
+}
+
+.table > tbody > tr > td {
+	border-top:  1px solid #666666;
+	color: #ffffff;
+}
+
+.table .blkf > tbody > tr > td {
+	border-top:  1px solid #dddddd;
+	color: #000000;
+	background-color: rgba(255, 255, 255, 0.7);
+}
+.table_b {
+	width: 100%;
+	margin-bottom: 10px;
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+.table_b > tbody > tr > td, .table_b > tbody > tr > th, .table_b > thead > tr > td, .table_b > thead > tr > th {
+    padding: 8px;
+    line-height: 1.42857;
+    vertical-align: top;
+    border-top: 1px solid #e7ecf1;
+	font-size: 14px;
+	color: #000;
+	background-color: rgba(255, 255, 255, 0.8);
+}
+
+
+.page-prefooter {
+    _background: rgba(72,82,94,0.8);
+	background: rgba(204,204,204,0.8);
+    color: #a2abb7;
+	padding: 15px 0;
+}
+
+.login .content {
+    _background: url(/FMS/assets/pages/img/bg-black.png);
+}
+
+.quick-nav .quick-nav-bg {
+    background: #ff9933;
+}
+
+.portlet.light .btn.btn-circle.btn-icon-only.btn-default:hover {
+	background: #ff9933;
+		border-color:#f19130;
+	
+}
+.portlet.portlet-fullscreen {
+	background: #eeeeee;
+}
+
+@media screen and (max-width: 767px){
+.table-responsive {
+	border: 0px solid #e7ecf1;
+}
+}
+
+.dataTables_wrapper{
+	background-color: rgba(255, 255, 255, 0.8);
+	padding-top: 10px;
+	box-shadow: 0 0 5px #888;
+}
+
+table.dataTable thead .sorting, table.dataTable thead .sorting_asc, table.dataTable thead .sorting_desc,  table.dataTable thead .sorting_disabled{
+	background-color: rgba(255, 255, 255, 0.8);
+}
+
+[class*=" fa-"]:not(.fa-stack){
+	line-height: 20px;
+}
+
+
+.nav-tabs {
+    border-bottom: 1px solid #000000;
+}
+.nav-tabs > li.active > a{
+	background-color: rgba(255, 255, 255, 0.3);
+	border-bottom: none;
+	color: #000;
+	font-weight: bold;
+	border: 1px solid #000000;
+}
+
+.nav-tabs > li.active > a:focus, .nav-tabs > li.active > a:hover{
+	background-color: rgba(255, 255, 255, 0.8);
+	border: 1px solid #000000;
+}
+
+.nav-tabs > li > a{
+	color: #000;
+}
+
+.nav-tabs > li > a:hover{
+	background-color: rgba(0, 0, 0, 0.3);
+	border: 1px solid #000000;
+}
+
+.quick-nav-trigger span, .quick-nav-trigger span::after, .quick-nav-trigger span::before {
+    background-color: rgba(0,0,0,0.4);
+}
+
+.quick-nav ul > li a > i {
+    color: rgba(0,0,0,0.4);
+}
+
+.scroll-to-top > i {
+    color: rgba(255,255,255,0.6);
+}
+
+.form-control {
+    background-color: rgba(255,255,255,0.7);
+	color: #000;
+}
+	

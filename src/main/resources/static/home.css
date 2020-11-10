@@ -1,0 +1,179 @@
+.highcharts-background {
+    fill: rgba(0, 0, 0, 0);
+}
+@media (min-height:800px) {
+    .om-itemholder  {
+        margin-top:15%;
+        _padding-left:200px;_padding-right:200px;
+    }
+}
+@media (max-height:800px) {
+    .om-itemholder  {
+        margin-top:10%;
+    }
+}
+
+
+
+ .highcharts-title,
+        .highcharts-legend-item,
+        .highcharts-axis-labels,
+        .highcharts-axis-title,
+        .highcharts-data-label text,
+		.highcharts-legend-item > text{
+            fill: #000;
+        }
+
+        #solidGaugeContainer .highcharts-color-0:nth-child(4) {
+            fill:#000;
+        } 
+.highcharts-minor-grid-line {
+    stroke: rgba(0, 0, 0, 0);
+}
+
+#gradient-0 stop {
+    stop-color: #fbc210;
+}
+
+#gradient-0 stop[offset="0"] {
+    stop-opacity: 0.75;
+}
+
+#gradient-0 stop[offset="1"] {
+    stop-opacity: 0.3;
+}
+
+#gradient-1 stop {
+    stop-color: #fbc210;
+}
+
+#gradient-1 stop[offset="0"] {
+    stop-opacity: 0.55;
+}
+
+#gradient-1 stop[offset="1"] {
+    stop-opacity: 0.55;
+}
+
+#landingYearsChart {
+    position: relative;
+}
+
+
+#landingYearsChart .landingChartImage {
+    position:absolute;
+    left:0px;
+    right:0px;
+    bottom:108px;
+    height:100%;
+	width: auto;
+    text-align: center;
+    background-image: url("images/truckDashboard.png");
+    pointer-events: none;
+	background-repeat:no-repeat;
+	background-position: bottom center;
+}
+
+#landingYearsChart .highcharts-color-0 .highcharts-point {
+    _stroke: #fbc210;
+    stroke: #657688;
+    stroke-width: 0px;
+    -fill: url(#gradient-0);
+    fill: #1a5276;
+    cursor: pointer;
+    -filter: url(#drop-shadow);
+}
+
+#landingYearsChart .highcharts-color-1 .highcharts-point {
+    stroke: #657688;
+    stroke-width: 0px;
+    fill: #2e86c1;
+    cursor: pointer;
+}
+
+#landingYearsChart .highcharts-title,
+#landingYearsChart .highcharts-xaxis-labels {
+    font-size: 25pt;
+}
+
+#landingYearsChart .highcharts-data-label {
+    font-size: 15pt;;
+}
+
+#vueApp h3 {
+    font-size: 25pt;
+    color: #000;
+    font-family: "Lucida Grande", "Lucida Sans Unicode", Arial, Helvetica, sans-serif;
+}
+
+.highcharts-yaxis-labels {
+    font-size: 8pt;
+    font-weight: bolder;
+}
+
+.om-nav {
+	height: 100%;
+    top: 0;
+    background-color: rgba(255, 255, 255, 0.7);
+}
+/* #gauge2014Chart .highcharts-pane, #gauge2014Chart .highcharts-color-0:nth-of-type(1),
+#gauge2015Chart .highcharts-pane, #gauge2014Chart .highcharts-color-0:nth-of-type(1),
+#gauge2016Chart .highcharts-pane, #gauge2014Chart .highcharts-color-0:nth-of-type(1) {
+    fill: #46aecb;
+} */
+.highcharts-pane {
+    fill: #657688;
+}
+
+
+#gauge2014Chart .highcharts-color-0 path:nth-of-type(1),
+#gauge2015Chart .highcharts-color-0 path:nth-of-type(1),
+#gauge2016Chart .highcharts-color-0 path:nth-of-type(1) {
+    fill: #60aa17
+}
+
+#gauge2014Chart .highcharts-pane:nth-of-type(2),
+#gauge2015Chart .highcharts-pane:nth-of-type(2),
+#gauge2016Chart .highcharts-pane:nth-of-type(2) {
+	fill-opacity: 1 !important;
+}
+.highcharts-grid-line  {
+    stroke-width: 0px;
+}
+.highcharts-legend-item.highcharts-series-0 .highcharts-point {
+    fill: #256172;
+}
+.highcharts-legend-item.highcharts-series-1 .highcharts-point {
+    fill: #46aecb;
+}
+
+/****** one menu Mod  ***/
+
+.tile-bt-extralarge {
+    text-align: center;
+    cursor: pointer;
+    width: 260px;
+    height: 260px;
+	margin-top:55px;
+}
+.om-itemlist [class*=" fa-"]:not(.fa-stack) {
+    line-height: 70px;
+}
+.tile-bt-extralarge span {
+    font-size: 24px;
+    padding-bottom: 20px;
+    display: block;
+    margin-top: 5px;
+}
+
+.fa-3x {
+    font-size: 5em;
+}
+
+.om-itemlist {
+    margin: 5px auto 5px auto;
+    overflow: hidden;
+
+}
+/******     ***/
+
